@@ -1,7 +1,117 @@
 from math import ceil,floor
 from random import choice,randint
 import os
+ 
+def dealDamage(damage,index):
+    global barrier,sp,shotCount,bulletType
+    if(bulletType=="normal" or bulletType=="n" or bulletType=="knife" or bulletType=="k" or bulletType=="f" or bulletType=="full"):
+        
+        if(not index in exposed):
+            if(bulletType=="f" or bulletType=="full"):
+                if(damage>=barrier/2 and barrier>0):
+                    barrier-=1
+            else:#bullet type not full AP
+                damage-=barrier
+                if(damage+barrier>=barrier/2 and barrier>0):
+                    barrier-=1
+        
+        if(bulletType=="f" or bulletType=="full"):
+            if(damage>=sp[index]/2 and sp[index]>0):
+                sp[index]-=1
+        elif(bulletType=="knife" or bulletType=="k"):
+            damage-=floor(sp[index]/2)
+            if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
+                sp[index]-=1
+        else:#normal
+            damage-=sp[index]
+            if(damage+sp[index]>=sp[index]/2 and sp[index]>0):
+                sp[index]-=1
+        
+        if(index==0):#head
+            if(not wildcard):#not wildcard
+                damage*=2
+                if (damage>=8):
+                    print(f"-=- INSTA-KILL, {damage} to head before BTM -=-")
+                if(damage>0):
+                    damage=max(1,damage-btm)
 
+            else:#wildcard
+                if(damage>0):
+                    damage=max(1,damage-btm)
+                if(damage>=8):
+                    print(f"-=- INSTA-KILL, {damage} to head *before double* -=-")
+                damage*=2
+
+        elif(damage>0):#not head AND damage exists
+            if(not wildcard and damage>=8 and index>1):
+                print(f"-=- CRITICAL INJURY TO {locations[index].upper()} -=-")
+            if(not wildcard and damage>=15 and index==1):
+                print(f"-=- CRITICAL INJURY TO TORSO -=-")
+
+            damage=max(1,damage-btm)
+
+            if(wildcard and damage>=8 and index>1):
+                print(f"-=- CRITICAL INJURY TO {locations[index].upper()} -=-")
+            if(wildcard and damage>=15 and index==1):
+                print(f"-=- CRITICAL INJURY TO TORSO -=-")
+
+    elif(bulletType=="bullet" or bulletType=="b"):
+
+        if(not index in exposed):
+            damage-=floor(barrier/2)
+            if(damage+floor(barrier/2)>=floor(barrier/4) and barrier>0):
+                barrier-=1
+
+        damage-=floor(sp[index]/2)
+        if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
+            sp[index]-=1
+
+        if(index==0):#head
+            if(not wildcard):#not wildcard
+                if (damage>=8):
+                    print(f"-=- INSTA-KILL, {damage} to head before BTM -=-")
+                damage-=btm
+
+            else:#wildcard
+                damage=floor(damage/2)
+                damage-=btm
+                if(damage>=8):
+                    print(f"-=- INSTA-KILL, {damage} to head *before double* -=-")
+                damage*=2
+
+        else:#not head
+            damage=floor(damage/2)
+            
+            if(not wildcard and damage>=8 and index>1):
+                print(f"-=- CRITICAL INJURY TO {locations[index].upper()} -=-")
+            if(not wildcard and damage>=15 and index==1):
+                print(f"-=- CRITICAL INJURY TO TORSO -=-")
+
+            damage-=btm
+            
+            if(wildcard and damage>=8 and index>1):
+                print(f"-=- CRITICAL INJURY TO {locations[index].upper()} -=-")
+            if(wildcard and damage>=15 and index==1):
+                print(f"-=- CRITICAL INJURY TO TORSO -=-")
+
+        #end bullet type == ap
+    elif(bulletType=="knife" or bulletType=="k"):
+        pass
+
+    else:#Undefined bullet type
+        bulletType="normal"
+        return dealDamage(damage,index)
+        
+    shotCount+=1
+
+    if(damage>0):
+        return damage
+
+    return 0
+
+############################ ^^^ BIG BOTCHED AND SCARY DAMAGE FUNCTION ^^^  +imports lol
+
+os.system("title Unnamed DT")
 shotCount=0
 damageTaken=0
 wildcard=False
@@ -9,16 +119,21 @@ btm=0
 sp=[0]*6
 bulletType="normal" #normal,bullet,knife,
 barrier=0
+exposed=set()
 
 locations=["Head","Torso","Larm","Rarm","Lleg","Rleg"]
 randLocation=[0,1,1,1,1,1,2,3,4,5]
 temp=""
 
+############################ ^^^ Globals cause Im a TERRIBLE programmer
+
 def setBulletType():
     global bulletType
     bulletType=input("""Ammo Types
-Default: (Normal)/(N)
-AP: (Bullet)/(B) (Knife)/(K) (Full)/(F)
+(N) - (Normal) Ammunition
+(B) - (Bullet) Style AP
+(K) - (Knife) Style AP
+(F) - (Full) AP
     
 Ammo Type:""").lower()
 
@@ -38,7 +153,7 @@ def setBody():
 
 def printSP():
     #print("(SP) - (Head) (Torso) (Larm) (Rarm) (Lleg) (Rleg)")
-    print(f"(SP) - [{sp[0]}|{sp[1]}|{sp[2]}|{sp[3]}|{sp[4]}|{sp[5]}]")
+    print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]")
 
 def initSP():
     global sp
@@ -52,6 +167,23 @@ def initSP():
     else:
         for i in range(len(sp)):
             sp[i]=int(sp[i])
+
+def exposedString():
+    global exposed
+    output=""
+    if(0 in exposed):
+        output+="(Head) "
+    if(1 in exposed):
+        output+="(Torso) "
+    if(2 in exposed):
+        output+="(Larm) "
+    if(3 in exposed):
+        output+="(Rarm) "
+    if(4 in exposed):
+        output+="(Lleg) "
+    if(5 in exposed):
+        output+="(Rleg) "
+    return output
 
 def processDamage(input):
     output=0
@@ -72,77 +204,10 @@ def processDamage(input):
 
     return output
 
-def dealDamage(damage,index):
-    global barrier,sp,shotCount,bulletType
-    if(bulletType=="normal" or bulletType=="n"):
 
-        damage-=barrier
-        if(damage+barrier>=barrier/2 and barrier>0):
-            barrier-=1
-        damage-=sp[index]
-        if(damage+sp[index]>=sp[index]/2 and sp[index]>0):
-            sp[index]-=1
-        
-        if(index==0):#head
-            if(not wildcard):#not wildcard
-                damage*=2
-                if (damage>=8):
-                    print(f"INSTA-KILL!!, with {damage} damage after double before BTM")
-                if(damage>0):
-                    damage=max(1,damage-btm)
-
-            else:#wildcard
-                if(damage>0):
-                    damage=max(1,damage-btm)
-                if(damage>=8):
-                    print(f"INSTA-KILL!!, with {damage} damage after BTM before double")
-                damage*=2
-
-        elif(damage>0):#not head AND damage exists
-            damage=max(1,damage-btm)
-
-    elif(bulletType=="bullet" or bulletType=="b"):
-
-        damage-=floor(barrier/2)
-        if(damage+floor(barrier/2)>=floor(barrier/4) and barrier>0):
-            barrier-=1
-        damage-=floor(sp[index]/2)
-        if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
-            sp[index]-=1
-
-        if(index==0):#head
-            if(not wildcard):#not wildcard
-                if (damage>=8):
-                    print(f"INSTA-KILL!!, with {damage} damage after double before BTM")
-                damage-=btm
-
-            else:#wildcard
-                damage=floor(damage/2)
-                damage-=btm
-                if(damage>=8):
-                    print(f"INSTA-KILL!!, with {damage} damage after BTM before double")
-                damage*=2
-
-        else:#not head
-            damage=floor(damage/2)
-            damage-=btm
-
-        #end bullet type == ap
-
-    else:#Undefined bullet type
-        bulletType="normal"
-        return dealDamage(damage,index)
-        
-    shotCount+=1
-
-    if(damage>0):
-        return damage
-
-    print("No damage")
-    return 0
 
 os.system('cls')
-if(input("Wildcard(y/n): ").__contains__("y")):
+if(input("Wildcard(y/N): ").__contains__("y")):
     print("Wildcard")
     wildcard=True
 else:
@@ -152,25 +217,79 @@ setBody()
 print()
 initSP()
 
-####################### MAIN LOOP
+####################### MAIN LOOP ############################################################################
 
 while(True):
     os.system('cls')
     if(wildcard):
-        print("*WILDCARD*")
-    print(f"(SHT) Shot counter: {shotCount} (DMG) Damage Taken: {damageTaken}\n")
+        print("-=- *WILDCARD* -=-\n")
+    print(f"(DMG) Damage Taken: {damageTaken} | (BTM): {btm} | (SHT) Shot counter: {shotCount}\n")
     printSP()
-    print(f"""(BTM) Body Type Modifier: {btm}
-
-(AM)  Ammo Type: {bulletType.upper()}
-(BAR) Barrier SP: {barrier}
+    print(f"\n(BAR) Barrier SP: {barrier}")
+    if(len(exposed)>0):
+        print(f"(EXP) Exposed areas: {exposedString()}")
+    else:
+        print("(EXP) Exposed")
+    print(f"""
+(AM) Ammo Type: {bulletType.upper()}
 
 (C) Called Shot
 (D) Damage to random location
 (N) New Enemy
     """)
     temp=input("Input Option: ").lower()
-    os.system('cls')
+    os.system("cls")
+
+    if(temp=="exp"):
+        while(True):
+            os.system("cls")
+            print("-=- (X) to EXIT -=-")
+            print("(ALL) - (Head)|(Torso)|(Larm)|(Rarm)|(Lleg)|(Rleg)")
+            print(f"Currently Exposed: {exposedString()}")
+            userIn=input("\nEnter location to toggle: ").lower()
+            if(userIn=="x" or userIn==""):
+                break
+            if(userIn=="all"):
+                if(len(exposed)==0):
+                    exposed={0,1,2,3,4,5}
+                else:
+                    exposed=set()
+            elif(userIn=="head"):
+                if(0 in exposed):
+                    exposed.remove(0)
+                else:
+                    exposed.add(0)
+            elif(userIn=="torso"):
+                if(1 in exposed):
+                    exposed.remove(1)
+                else:
+                    exposed.add(1)
+            elif(userIn=="larm"):
+                if(2 in exposed):
+                    exposed.remove(2)
+                else:
+                    exposed.add(2)
+            elif(userIn=="rarm"):
+                if(3 in exposed):
+                    exposed.remove(3)
+                else:
+                    exposed.add(3)
+            elif(userIn=="lleg"):
+                if(4 in exposed):
+                    exposed.remove(4)
+                else:
+                    exposed.add(4)
+            elif(userIn=="rleg"):
+                if(5 in exposed):
+                    exposed.remove(5)
+                else:
+                    exposed.add(5)
+
+        continue
+
+    if(temp=="name"):
+        os.system("title "+input("Enter new window name: ").upper())
+        continue
 
     if(temp=="sp"):
         initSP()
@@ -198,10 +317,17 @@ while(True):
 
     if(temp=="n"):
         wildcard=False
-        if(input("Wildcard(y/n): ").__contains__("y")):
+        if(input("Wildcard(y/N): ").__contains__("y")):
             wildcard=True
+        print()
         setBody()
+        print()
         initSP()
+        barrier=0
+        bulletType="normal"
+        damageTaken=0
+        shotCount=0
+
 
     if(temp=="head"):
         sp[0] = input("Set head SP: ")
@@ -252,8 +378,7 @@ while(True):
             elif(location=="rleg"):
                 i=5
 
-            damage=processDamage(damage)
-            output=dealDamage(damage,i)
+            output=dealDamage(processDamage(damage),i)
             damageTaken+=output
             if(input(f"Dealt {output} damage to {locations[i]}, ENTER to Continue\n").lower()=="x"):
                 break
@@ -281,7 +406,6 @@ while(True):
             else:#iterating
                 iterations-=1
             
-            damage=processDamage(damage)
-            output=dealDamage(damage,i)
+            output=dealDamage(processDamage(damage),i)
             damageTaken+=output
             print(f"Dealt {output} damage to {locations[i]}\n")
