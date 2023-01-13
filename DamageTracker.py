@@ -3,7 +3,7 @@ from random import choice,randint
 import os
  
 def dealDamage(damage,index):
-    global barrier,sp,shotCount,bulletType
+    global barrier,sp,shotCount,bulletType,dead
     if(bulletType=="normal" or bulletType=="n" or bulletType=="knife" or bulletType=="k" or bulletType=="f" or bulletType=="full"):
         
         if(not index in exposed):
@@ -32,6 +32,7 @@ def dealDamage(damage,index):
                 damage*=2
                 if (damage>=8):
                     print(f"-=- INSTA-KILL, {damage} to head before BTM -=-")
+                    dead=True
                 if(damage>0):
                     damage=max(1,damage-btm)
 
@@ -40,18 +41,19 @@ def dealDamage(damage,index):
                     damage=max(1,damage-btm)
                 if(damage>=8):
                     print(f"-=- INSTA-KILL, {damage} to head *before double* -=-")
+                    dead=True
                 damage*=2
 
         elif(damage>0):#not head AND damage exists
             if(not wildcard and damage>=8 and index>1):
-                print(f"-=- CRITICAL INJURY TO {locations[index].upper()} -=-")
+                print(f"-=- CRITICAL INJURY TO {LOCATIONS[index].upper()} -=-")
             if(not wildcard and damage>=15 and index==1):
                 print(f"-=- CRITICAL INJURY TO TORSO -=-")
 
             damage=max(1,damage-btm)
 
             if(wildcard and damage>=8 and index>1):
-                print(f"-=- CRITICAL INJURY TO {locations[index].upper()} -=-")
+                print(f"-=- CRITICAL INJURY TO {LOCATIONS[index].upper()} -=-")
             if(wildcard and damage>=15 and index==1):
                 print(f"-=- CRITICAL INJURY TO TORSO -=-")
 
@@ -70,6 +72,7 @@ def dealDamage(damage,index):
             if(not wildcard):#not wildcard
                 if (damage>=8):
                     print(f"-=- INSTA-KILL, {damage} to head before BTM -=-")
+                    dead=True
                 damage-=btm
 
             else:#wildcard
@@ -77,20 +80,21 @@ def dealDamage(damage,index):
                 damage-=btm
                 if(damage>=8):
                     print(f"-=- INSTA-KILL, {damage} to head *before double* -=-")
+                    dead=True
                 damage*=2
 
         else:#not head
             damage=floor(damage/2)
             
             if(not wildcard and damage>=8 and index>1):
-                print(f"-=- CRITICAL INJURY TO {locations[index].upper()} -=-")
+                print(f"-=- CRITICAL INJURY TO {LOCATIONS[index].upper()} -=-")
             if(not wildcard and damage>=15 and index==1):
                 print(f"-=- CRITICAL INJURY TO TORSO -=-")
 
             damage-=btm
             
             if(wildcard and damage>=8 and index>1):
-                print(f"-=- CRITICAL INJURY TO {locations[index].upper()} -=-")
+                print(f"-=- CRITICAL INJURY TO {LOCATIONS[index].upper()} -=-")
             if(wildcard and damage>=15 and index==1):
                 print(f"-=- CRITICAL INJURY TO TORSO -=-")
 
@@ -121,9 +125,13 @@ bulletType="normal" #normal,bullet,knife,
 barrier=0
 exposed=set()
 
-locations=["Head","Torso","Larm","Rarm","Lleg","Rleg"]
-randLocation=[0,1,1,1,1,1,2,3,4,5]
+LOCATIONS=["Head","Torso","Larm","Rarm","Lleg","Rleg"]
+RANDLOCATION=[0,1,1,1,1,1,2,3,4,5]
 temp=""
+
+stun=False
+uncon=False
+dead=False
 
 ############################ ^^^ Globals cause Im a TERRIBLE programmer
 
@@ -205,8 +213,9 @@ def processDamage(input):
     return output
 
 def renderDamage():
+    global dead,btm
     i=0
-    print("(DMG): [",end="")
+    print(f"(DMG): {damageTaken} - [",end="")
     for _ in range(damageTaken):
         i+=1
         print("#",end="")
@@ -215,6 +224,7 @@ def renderDamage():
         elif(i%5==0):
             print("|",end="")
         if(i==60):
+            dead=True
             break
     for _ in range(60-damageTaken):
         i+=1
@@ -223,7 +233,7 @@ def renderDamage():
             print("][",end="")
         elif(i%5==0):
             print("|",end="")
-    print(f"\b - {damageTaken}")
+    print(f"\b (BTM): {btm}")
 
 
 os.system('cls')
@@ -244,7 +254,16 @@ while(True):
     if(wildcard):
         print("-=- *WILDCARD* -=-\n")
     renderDamage()
-    print(f"(BTM): {btm} | (SHT) Shot counter: {shotCount}\n")
+    if(stun or uncon or dead):
+        print("Status: ",end="")
+        if(stun):
+            print("*STUN* ",end="")
+        if(uncon):
+            print("-=-UNCON-=- ",end="")
+        if(dead):
+            print("###DEAD### ",end="")
+        print()
+    print()
     printSP()
     print(f"\n(BAR) Barrier SP: {barrier}")
     if(len(exposed)>0):
@@ -253,6 +272,7 @@ while(True):
         print("(EXP) Exposed")
     print(f"""
 (AM) Ammo Type: {bulletType.upper()}
+(SHT) Shot counter: {shotCount}
 
 (C) Called Shot
 (D) Damage to random location
@@ -260,6 +280,22 @@ while(True):
     """)
     temp=input("Input Option: ").lower()
     os.system("cls")
+
+    if(temp=="stun"):
+        stun=not stun
+        continue
+
+    if(temp=="uncon"):
+        uncon=not uncon
+        continue
+
+    if(temp=="dead"):
+        dead=not dead
+        continue
+
+    if(temp=="status"):
+        input("Try typing the name of the status!\n(STUN) (UNCON) (DEAD)\nEnter to continue...")
+        continue
 
     if(temp=="exp"):
         while(True):
@@ -348,6 +384,9 @@ while(True):
         bulletType="normal"
         damageTaken=0
         shotCount=0
+        stun=False
+        uncon=False
+        dead=False
 
 
     if(temp=="head"):
@@ -401,7 +440,7 @@ while(True):
 
             output=dealDamage(processDamage(damage),i)
             damageTaken+=output
-            if(input(f"Dealt {output} damage to {locations[i]}, ENTER to Continue\n").lower()=="x"):
+            if(input(f"Dealt {output} damage to {LOCATIONS[i]}, ENTER to Continue\n").lower()=="x"):
                 break
 
     if(temp=="d"):
@@ -410,9 +449,9 @@ while(True):
             setBulletType()
         print("-=- Press (x) to EXIT -=-\n")
         while(True):
-            i=choice(randLocation)
+            i=choice(RANDLOCATION)
             if(iterations<=0):
-                print(f"Damage to {locations[i]}")
+                print(f"Damage to {LOCATIONS[i]}")
                 damage=input("Damage: ")
 
                 if(damage.lower()=="x"):
@@ -429,4 +468,4 @@ while(True):
             
             output=dealDamage(processDamage(damage),i)
             damageTaken+=output
-            print(f"Dealt {output} damage to {locations[i]}\n")
+            print(f"Dealt {output} damage to {LOCATIONS[i]}\n")
