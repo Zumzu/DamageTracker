@@ -135,7 +135,7 @@ def setBulletType():
 (K) - (Knife) Style AP
 (F) - (Full) AP
     
-Ammo Type:""").lower()
+Ammo Type: """).lower()
 
 def setBody():
     global btm
@@ -204,6 +204,26 @@ def processDamage(input):
 
     return output
 
+def renderDamage():
+    i=0
+    print("(DMG): [",end="")
+    for _ in range(damageTaken):
+        i+=1
+        print("#",end="")
+        if(i%10==0):
+            print("][",end="")
+        elif(i%5==0):
+            print("|",end="")
+        if(i==60):
+            break
+    for _ in range(60-damageTaken):
+        i+=1
+        print(".",end="")
+        if(i%10==0):
+            print("][",end="")
+        elif(i%5==0):
+            print("|",end="")
+    print(f"\b - {damageTaken}")
 
 
 os.system('cls')
@@ -223,7 +243,8 @@ while(True):
     os.system('cls')
     if(wildcard):
         print("-=- *WILDCARD* -=-\n")
-    print(f"(DMG) Damage Taken: {damageTaken} | (BTM): {btm} | (SHT) Shot counter: {shotCount}\n")
+    renderDamage()
+    print(f"(BTM): {btm} | (SHT) Shot counter: {shotCount}\n")
     printSP()
     print(f"\n(BAR) Barrier SP: {barrier}")
     if(len(exposed)>0):
