@@ -174,7 +174,10 @@ def initSP():
         sp=[int(sp[0])]*6
     else:
         for i in range(len(sp)):
-            sp[i]=int(sp[i])
+            if(sp[i]==""):
+                sp[i]=0
+            else:
+                sp[i]=int(sp[i])
 
 def exposedString():
     global exposed
