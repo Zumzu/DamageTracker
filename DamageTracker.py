@@ -309,6 +309,8 @@ while(True):
 (C) Called Shot
 (D) Damage to random location
 (N) New Enemy
+
+(SAVE) (LOAD)
     """)
     temp=input("Input Option: ").lower()
     clr()
