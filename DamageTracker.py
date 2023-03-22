@@ -1,6 +1,9 @@
 from math import ceil,floor
 from random import choice,randint
 import os
+from platform import system
+
+WINDOWS=system()=="Windows"
  
 def dealDamage(damage,index):
     global barrier,sp,shotCount,bulletType,dead
@@ -166,18 +169,16 @@ def printSP():
 def initSP():
     global sp
     print("SP in order (Head)|(Torso)|(Larm)|(Rarm)|(Lleg)|(Rleg)")
-    sp=input("format \"H,T,L,R,L,R\" or \"ALL\": ").split(",")
-    if(sp==[""]):
-        sp=[0]*6
-        return
-    if(len(sp)==1):
-        sp=[int(sp[0])]*6
+    sp=[0]*6
+    userin=input("format \"H,T,L,R,L,R\" or \"ALL\": ").split(",")
+    if(len(userin)==1 and userin[0]!=""):
+        sp=[int(userin[0])]*6
     else:
-        for i in range(len(sp)):
-            if(sp[i]==""):
+        for i in range(len(userin)):
+            if(userin[i]==""):
                 sp[i]=0
             else:
-                sp[i]=int(sp[i])
+                sp[i]=int(userin[i])
 
 def exposedString():
     global exposed
@@ -238,8 +239,13 @@ def renderDamage():
             print("|",end="")
     print(f"\b (BTM): {btm}")
 
+def clr():
+    if WINDOWS:
+        os.system('cls')
+    else:
+        os.system('clear')
 
-os.system('cls')
+clr()
 if(input("Wildcard(y/N): ").__contains__("y")):
     print("Wildcard")
     wildcard=True
@@ -253,7 +259,7 @@ initSP()
 ####################### MAIN LOOP ############################################################################
 
 while(True):
-    os.system('cls')
+    clr()
     if(wildcard):
         print("-=- *WILDCARD* -=-\n")
     renderDamage()
@@ -415,7 +421,7 @@ while(True):
         if(bulletType=="normal"):
             setBulletType()
         while(True):
-            os.system('cls')
+            clr()
             print("-=- Press (x) to EXIT -=-")
             location=input("Location (Head,Torso,Larm,Rarm,Lleg,Rleg): ").lower()
             if(location.lower()=="x"):
