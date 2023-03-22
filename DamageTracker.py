@@ -2,8 +2,6 @@ from math import ceil,floor
 from random import choice,randint
 import os
 from platform import system
-
-WINDOWS=system()=="Windows"
  
 def dealDamage(damage,index):
     global barrier,sp,shotCount,bulletType,dead
@@ -128,6 +126,7 @@ bulletType="normal" #normal,bullet,knife,
 barrier=0
 exposed=set()
 
+WINDOWS=system()=="Windows"
 LOCATIONS=["Head","Torso","Larm","Rarm","Lleg","Rleg"]
 RANDLOCATION=[0,1,1,1,1,1,2,3,4,5]
 temp=""
@@ -245,6 +244,16 @@ def clr():
     else:
         os.system('clear')
 
+def saveState():
+    clr()
+    name=input("Save name: ")
+
+def loadState():
+    pass
+
+
+##################### INIT ########################################################################
+
 clr()
 if(input("Wildcard(y/N): ").__contains__("y")):
     print("Wildcard")
@@ -288,7 +297,7 @@ while(True):
 (N) New Enemy
     """)
     temp=input("Input Option: ").lower()
-    os.system("cls")
+    clr()
 
     if(temp=="stun"):
         stun=not stun
@@ -308,7 +317,7 @@ while(True):
 
     if(temp=="exp"):
         while(True):
-            os.system("cls")
+            clr()
             print("-=- (X) to EXIT -=-")
             print("(ALL) - (Head)|(Torso)|(Larm)|(Rarm)|(Lleg)|(Rleg)")
             print(f"Currently Exposed: {exposedString()}")
@@ -354,8 +363,9 @@ while(True):
         continue
 
     if(temp=="name"):
-        os.system("title "+input("Enter new window name: ").upper())
-        continue
+        if(WINDOWS):
+            os.system("title "+input("Enter new window name: ").upper())
+            continue
 
     if(temp=="sp"):
         initSP()
