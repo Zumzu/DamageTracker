@@ -246,24 +246,38 @@ def clr():
 
 def saveState():
     clr()
-    name=input("Save name: ")
+    name=input("Save name (no input for default load set): ")
+    data=f"{wildcard};{sp[0]},{sp[1]},{sp[2]},{sp[3]},{sp[4]},{sp[5]};{btm}"
 
-def loadState():
-    pass
+    with open(f"{name}.txt", "w") as f:
+        f.write(data)
+
+def loadState(name):
+    global wildcard,btm,sp
+    with open(f"{name}.txt", "r") as f:
+        data=f.read().split(";")
+        wildcard=data[0]
+        btm=data[2]
+        sp=data[1].split(",")
 
 
 ##################### INIT ########################################################################
 
 clr()
-if(input("Wildcard(y/N): ").__contains__("y")):
-    print("Wildcard")
-    wildcard=True
+temp=input("If loading from file, enter its name\nIf fresh instance, leave blank\n\nChoice: ")
+if(temp!=""):
+    loadState(temp)
 else:
-    print("Non wildcard")
-print()
-setBody()
-print()
-initSP()
+    clr()
+    if(input("Wildcard(y/N): ").__contains__("y")):
+        print("Wildcard")
+        wildcard=True
+    else:
+        print("Non wildcard")
+    print()
+    setBody()
+    print()
+    initSP()
 
 ####################### MAIN LOOP ############################################################################
 
@@ -366,6 +380,15 @@ while(True):
         if(WINDOWS):
             os.system("title "+input("Enter new window name: ").upper())
             continue
+
+    if(temp=="save"):
+        saveState()
+        continue
+
+    if(temp=="load"):
+        temp=input("Load file name (no.txt): ")
+        loadState(f"{temp}.txt")
+        continue
 
     if(temp=="sp"):
         initSP()
