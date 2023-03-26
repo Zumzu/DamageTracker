@@ -116,7 +116,10 @@ def dealDamage(damage,index):
 
 ############################ ^^^ BIG BOTCHED AND SCARY DAMAGE FUNCTION ^^^  +imports lol
 
-os.system("title Unnamed DT")
+WINDOWS=system()=="Windows"
+LOCATIONS=["Head","Torso","Larm","Rarm","Lleg","Rleg"]
+RANDLOCATION=[0,1,1,1,1,1,2,3,4,5]
+
 shotCount=0
 damageTaken=0
 wildcard=False
@@ -126,9 +129,9 @@ bulletType="normal" #normal,bullet,knife,
 barrier=0
 exposed=set()
 
-WINDOWS=system()=="Windows"
-LOCATIONS=["Head","Torso","Larm","Rarm","Lleg","Rleg"]
-RANDLOCATION=[0,1,1,1,1,1,2,3,4,5]
+if(WINDOWS):
+    os.system("title Unnamed DT")
+
 temp=""
 
 stun=False
@@ -162,8 +165,7 @@ def setBody():
         btm=floor(temp/2-1)
 
 def printSP():
-    #print("(SP) - (Head) (Torso) (Larm) (Rarm) (Lleg) (Rleg)")
-    print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]")
+    print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]  (BTM): {btm}")
 
 def initSP():
     global sp
@@ -226,17 +228,17 @@ def renderDamage():
             print("][",end="")
         elif(i%5==0):
             print("|",end="")
-        if(i==60):
+        if(i==50):
             dead=True
             break
-    for _ in range(60-damageTaken):
+    for _ in range(50-damageTaken):
         i+=1
         print(".",end="")
         if(i%10==0):
             print("][",end="")
         elif(i%5==0):
             print("|",end="")
-    print(f"\b (BTM): {btm}")
+    print(f"\b (SHT): {shotCount}")
 
 def clr():
     if WINDOWS:
@@ -254,30 +256,39 @@ def saveState():
 
 def loadState(name):
     global wildcard,btm,sp
-    with open(f"{name}.txt", "r") as f:
-        data=f.read().split(";")
-        wildcard=data[0]
-        btm=data[2]
-        sp=data[1].split(",")
 
+    try:
+        with open(f"{name}.txt", "r") as f:
+            data=f.read().split(";")
+            wildcard=data[0]
+            btm=int(data[2])
+            sp=[int(i) for i in data[1].split(",")]
+
+    except:
+        return False
+    
+    return True
 
 ##################### INIT ########################################################################
 
-clr()
-temp=input("If loading from file, enter its name\nIf fresh instance, leave blank\n\nChoice: ")
-if(temp!=""):
-    loadState(temp)
-else:
+while(True):
     clr()
-    if(input("Wildcard(y/N): ").__contains__("y")):
-        print("Wildcard")
-        wildcard=True
+    temp=input("If loading from file, enter its name\nIf fresh instance, leave blank\n\nChoice: ")
+    if(temp!=""):
+        if(loadState(temp)):
+            break
     else:
-        print("Non wildcard")
-    print()
-    setBody()
-    print()
-    initSP()
+        clr()
+        if(input("Wildcard(y/N): ").__contains__("y")):
+            print("Wildcard")
+            wildcard=True
+        else:
+            print("Non wildcard")
+        print()
+        setBody()
+        print()
+        initSP()
+        break
 
 ####################### MAIN LOOP ############################################################################
 
@@ -295,6 +306,7 @@ while(True):
         if(dead):
             print("###DEAD### ",end="")
         print()
+
     print()
     printSP()
     print(f"\n(BAR) Barrier SP: {barrier}")
@@ -304,13 +316,10 @@ while(True):
         print("(EXP) Exposed")
     print(f"""
 (AM) Ammo Type: {bulletType.upper()}
-(SHT) Shot counter: {shotCount}
-
 (C) Called Shot
 (D) Damage to random location
-(N) New Enemy
 
-(SAVE) (LOAD)
+(SAVE) (LOAD) (NEW)
     """)
     temp=input("Input Option: ").lower()
     clr()
@@ -388,8 +397,8 @@ while(True):
         continue
 
     if(temp=="load"):
-        temp=input("Load file name (no.txt): ")
-        loadState(f"{temp}.txt")
+        temp=input("Load file name (no '.txt'): ")
+        loadState(temp)
         continue
 
     if(temp=="sp"):
@@ -416,7 +425,7 @@ while(True):
         barrier=int(input(f"Set barrier (old: {barrier}): "))
         continue
 
-    if(temp=="n"):
+    if(temp=="new"):
         wildcard=False
         if(input("Wildcard(y/N): ").__contains__("y")):
             wildcard=True
@@ -457,6 +466,7 @@ while(True):
             setBulletType()
         while(True):
             clr()
+            print(f"Current ammo type: {bulletType.upper()}")
             print("-=- Press (x) to EXIT -=-")
             location=input("Location (Head,Torso,Larm,Rarm,Lleg,Rleg): ").lower()
             if(location.lower()=="x"):
@@ -491,6 +501,7 @@ while(True):
         iterations=0
         if(bulletType=="normal"):
             setBulletType()
+        print(f"Current ammo type: {bulletType.upper()}")
         print("-=- Press (x) to EXIT -=-\n")
         while(True):
             i=choice(RANDLOCATION)
