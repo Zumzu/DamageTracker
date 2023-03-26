@@ -310,14 +310,15 @@ while(True):
     print()
     printSP()
     print(f"\n(BAR) Barrier SP: {barrier}")
-    if(len(exposed)>0):
-        print(f"(EXP) Exposed areas: {exposedString()}")
-    else:
-        print("(EXP) Exposed")
+    if(barrier>0):
+        if(len(exposed)>0):
+            print(f"(EXP) Exposed areas: {exposedString()}")
+        else:
+            print("(EXP) Exposed")
     print(f"""
-(AM) Ammo Type: {bulletType.upper()}
+(AM) Ammo: {bulletType.upper()}
 (C) Called Shot
-(D) Damage to random location
+(R) Random Location
 
 (SAVE) (LOAD) (NEW)
     """)
@@ -497,7 +498,7 @@ while(True):
             if(input(f"Dealt {output} damage to {LOCATIONS[i]}, ENTER to Continue\n").lower()=="x"):
                 break
 
-    if(temp=="d"):
+    if(temp=="r"):
         iterations=0
         if(bulletType=="normal"):
             setBulletType()
