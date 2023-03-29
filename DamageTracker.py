@@ -172,7 +172,7 @@ def initSP():
     sp=[0]*6
     userin=input("SP format \"H,T,L,R,L,R\", \"H,T,A,L\", \"H,T/A,L\", \"H,T/A\" or \"ALL\"\nSP: ").split(",")
     if(len(userin)==1 and userin[0]!=""):
-        sp=[int(userin[0])]*7
+        sp=[userin[0]]*7
     elif(len(userin)==2):
         sp[0]=userin[0]
         sp[1],sp[2],sp[3]=userin[1],userin[1],userin[1]
@@ -192,7 +192,8 @@ def initSP():
             if(userin[i]==""):
                 sp[i]=0
             else:
-                sp[i]=int(userin[i])
+                sp[i]=userin[i]
+    sp=[int(i) for i in sp]
 
 def exposedString():
     global exposed
