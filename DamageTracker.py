@@ -169,7 +169,7 @@ def printSP():
 
 def initSP():
     global sp
-    sp=[0]*6
+    sp=[0]*7
     userin=input("SP format \"H,T,L,R,L,R\", \"H,T,A,L\", \"H,T/A,L\", \"H,T/A\" or \"ALL\"\nSP: ").split(",")
     if(len(userin)==1 and userin[0]!=""):
         sp=[userin[0]]*7
