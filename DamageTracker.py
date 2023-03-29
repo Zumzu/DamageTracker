@@ -124,7 +124,7 @@ shotCount=0
 damageTaken=0
 wildcard=False
 btm=0
-sp=[0]*6
+sp=[0]*7
 bulletType="normal" #normal,bullet,knife,
 barrier=0
 exposed=set()
@@ -169,13 +169,26 @@ def printSP():
 
 def initSP():
     global sp
-    print("SP in order (Head)|(Torso)|(Larm)|(Rarm)|(Lleg)|(Rleg)")
     sp=[0]*6
-    userin=input("format \"H,T,L,R,L,R\" or \"ALL\": ").split(",")
+    userin=input("SP format \"H,T,L,R,L,R\", \"H,T,A,L\", \"H,T/A,L\", \"H,T/A\" or \"ALL\"\nSP: ").split(",")
     if(len(userin)==1 and userin[0]!=""):
-        sp=[int(userin[0])]*6
+        sp=[int(userin[0])]*7
+    elif(len(userin)==2):
+        sp[0]=userin[0]
+        sp[1],sp[2],sp[3]=userin[1],userin[1],userin[1]
+    elif(len(userin)==3):
+        sp[0]=userin[0]
+        sp[1],sp[2],sp[3]=userin[1],userin[1],userin[1]
+        sp[4],sp[5]=userin[2],userin[2]
+    elif(len(userin)==4):
+        sp[0]=userin[0]
+        sp[1]=userin[1]
+        sp[2],sp[3]=userin[2],userin[2]
+        sp[4],sp[5]=userin[3],userin[3]
     else:
         for i in range(len(userin)):
+            if(i==6):
+                break
             if(userin[i]==""):
                 sp[i]=0
             else:
@@ -262,7 +275,12 @@ def loadState(name):
             data=f.read().split(";")
             wildcard=data[0]
             btm=int(data[2])
-            sp=[int(i) for i in data[1].split(",")]
+            input_sp=[int(i) for i in data[1].split(",")]
+            sp=[0]*7
+            for i in range(len(input_sp)):
+                if(i==6):
+                    break
+                sp[i]=input[i]
 
     except:
         return False
@@ -469,17 +487,27 @@ while(True):
             clr()
             print(f"Current ammo type: {bulletType.upper()}")
             print("-=- Press (x) to EXIT -=-")
-            location=input("Location (Head,Torso,Larm,Rarm,Lleg,Rleg): ").lower()
-            if(location.lower()=="x"):
+            location=input("Location (Head,Torso,Larm,Rarm,Lleg,Rleg,Other): ").lower()
+            if(location=="x"):
                 break
+            if(location=="other"):
+                sp[6]=input("Location SP: ")
             damage=input("Damage: ")
-            if(damage.lower()=="x"):
+            if(damage=="x"):
                 break
             if(damage==""):
                 print()
                 continue
 
-            i=1
+            if(location=="other"):
+                locSP=sp[6]
+                output=dealDamage(processDamage(damage),6)
+                damageTaken+=output
+                if(input(f"Dealt {output} damage to {locSP} SP, new SP is {sp[6]}, ENTER to Continue\n").lower()=="x"):
+                    break
+                continue
+
+            i=0
             if(location=="head"):
                 i=0
             elif(location=="torso"):
