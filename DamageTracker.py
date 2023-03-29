@@ -492,7 +492,10 @@ while(True):
             if(location=="x"):
                 break
             if(location=="other"):
-                sp[6]=input("Location SP: ")
+                temp=input("Location SP: ")
+                sp[6]=0
+                if(temp.isnumeric() and not temp==""):
+                    sp[6]=int(temp)
             damage=input("Damage: ")
             if(damage=="x"):
                 break
