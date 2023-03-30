@@ -4,7 +4,7 @@ import os
 from platform import system
  
 def dealDamage(damage,index):
-    global barrier,sp,shotCount,bulletType,dead
+    global barrier,sp,shotCount,bulletType,dead,autostun
     if(bulletType=="normal" or bulletType=="n" or bulletType=="knife" or bulletType=="k" or bulletType=="f" or bulletType=="full"):
         
         if(not index in exposed):
@@ -32,7 +32,7 @@ def dealDamage(damage,index):
             if(not wildcard):#not wildcard
                 damage*=2
                 if (damage>=8):
-                    print(f"-=- INSTA-KILL, {damage} to head before BTM -=-")
+                    print(f"### INSTA-KILL, {damage} to head before BTM ###")
                     dead=True
                 if(damage>0):
                     damage=max(1,damage-btm)
@@ -41,22 +41,22 @@ def dealDamage(damage,index):
                 if(damage>0):
                     damage=max(1,damage-btm)
                 if(damage>=8):
-                    print(f"-=- INSTA-KILL, {damage} to head *before double* -=-")
+                    print(f"### INSTA-KILL, {damage} to head *before double* ###")
                     dead=True
                 damage*=2
 
         elif(damage>0):#not head AND damage exists
             if(not wildcard and damage>=8 and index>1):
-                print(f"-=- CRITICAL INJURY TO {LOCATIONS[index].upper()} -=-")
+                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
             if(not wildcard and damage>=15 and index==1):
-                print(f"-=- CRITICAL INJURY TO TORSO -=-")
+                print(f"### CRITICAL INJURY TO TORSO ###")
 
             damage=max(1,damage-btm)
 
             if(wildcard and damage>=8 and index>1):
-                print(f"-=- CRITICAL INJURY TO {LOCATIONS[index].upper()} -=-")
+                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
             if(wildcard and damage>=15 and index==1):
-                print(f"-=- CRITICAL INJURY TO TORSO -=-")
+                print(f"### CRITICAL INJURY TO TORSO ###")
 
     elif(bulletType=="bullet" or bulletType=="b"):
 
@@ -72,7 +72,7 @@ def dealDamage(damage,index):
         if(index==0):#head
             if(not wildcard):#not wildcard
                 if (damage>=8):
-                    print(f"-=- INSTA-KILL, {damage} to head before BTM -=-")
+                    print(f"### INSTA-KILL, {damage} to head before BTM ###")
                     dead=True
                 damage-=btm
 
@@ -80,7 +80,7 @@ def dealDamage(damage,index):
                 damage=floor(damage/2)
                 damage-=btm
                 if(damage>=8):
-                    print(f"-=- INSTA-KILL, {damage} to head *before double* -=-")
+                    print(f"### INSTA-KILL, {damage} to head *before double* ###")
                     dead=True
                 damage*=2
 
@@ -88,16 +88,16 @@ def dealDamage(damage,index):
             damage=floor(damage/2)
             
             if(not wildcard and damage>=8 and index>1):
-                print(f"-=- CRITICAL INJURY TO {LOCATIONS[index].upper()} -=-")
+                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
             if(not wildcard and damage>=15 and index==1):
-                print(f"-=- CRITICAL INJURY TO TORSO -=-")
+                print(f"### CRITICAL INJURY TO TORSO ###")
 
             damage-=btm
             
             if(wildcard and damage>=8 and index>1):
-                print(f"-=- CRITICAL INJURY TO {LOCATIONS[index].upper()} -=-")
+                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
             if(wildcard and damage>=15 and index==1):
-                print(f"-=- CRITICAL INJURY TO TORSO -=-")
+                print(f"### CRITICAL INJURY TO TORSO ###")
 
         #end bullet type == ap
     elif(bulletType=="knife" or bulletType=="k"):
@@ -110,6 +110,8 @@ def dealDamage(damage,index):
     shotCount+=1
 
     if(damage>0):
+        if(autostun):
+            rollStun()
         return damage
 
     return 0
@@ -124,6 +126,7 @@ shotCount=0
 damageTaken=0
 wildcard=False
 btm=0
+body=6
 sp=[0]*7
 bulletType="normal" #normal,bullet,knife,
 barrier=0
@@ -134,6 +137,7 @@ if(WINDOWS):
 
 temp=""
 
+autostun=False
 stun=False
 uncon=False
 dead=False
@@ -142,21 +146,22 @@ dead=False
 
 def setBulletType():
     global bulletType
-    bulletType=input("""Ammo Types
-(N) - (Normal) Ammunition
-(B) - (Bullet) Style AP
-(K) - (Knife) Style AP
-(F) - (Full) AP
+    bulletType=input("""Ammo Types:
+(N)/(Normal) - Standard Ammo
+(B)/(Bullet) - SP treated as half, half damage through
+(K)/(Knife) - SP treated as half, full damage through
+(F)/(Full) - SP ignored (still degraded), full damage through
     
 Ammo Type: """).lower()
 
 def setBody():
-    global btm
+    global btm,body
     temp=input("Set body: ")
     if(temp==""):
         temp=6
         print("defaulted to body: 6, btm: 2")
     temp=int(temp)
+    body=temp
     if(temp>10):
         btm=5
     elif(temp<6):
@@ -165,7 +170,7 @@ def setBody():
         btm=floor(temp/2-1)
 
 def printSP():
-    print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]  (BTM): {btm}",end="")
+    print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]  (BTM): {btm}  (BODY): {body}",end="")
     if(floor((damageTaken-1)/5)>0):
         print(f"  Stun: -{floor((damageTaken-1)/5)}",end="")
     print()
@@ -266,30 +271,52 @@ def clr():
 def saveState():
     clr()
     name=input("Save name (no input for default load set): ")
-    data=f"{wildcard};{sp[0]},{sp[1]},{sp[2]},{sp[3]},{sp[4]},{sp[5]};{btm}"
+    data=f"{wildcard};{autostun};{sp[0]},{sp[1]},{sp[2]},{sp[3]},{sp[4]},{sp[5]};{body}"
 
     with open(f"{name}.txt", "w") as f:
         f.write(data)
 
 def loadState(name):
-    global wildcard,btm,sp
+    global wildcard,autostun,btm,body,sp
 
     try:
         with open(f"{name}.txt", "r") as f:
             data=f.read().split(";")
             wildcard=data[0]
-            btm=int(data[2])
-            input_sp=[int(i) for i in data[1].split(",")]
+            autostun=data[1]
+
+            body=int(data[3])
+            if(body>10):
+                btm=5
+            elif(body<6):
+                btm=ceil(body/2-1)
+            else:
+                btm=floor(body/2-1)
+
+            input_sp=[int(i) for i in data[2].split(",")]
             sp=[0]*7
             for i in range(len(input_sp)):
                 if(i==6):
                     break
-                sp[i]=input[i]
+                sp[i]=input_sp[i]
 
     except:
         return False
     
     return True
+
+def rollStun():
+    global stun,uncon
+    d10=[1,2,3,4,5,6,7,8,9,10]
+    if(not stun):
+        if(choice(d10)>body-floor((damageTaken-1)/5)):
+            print("*** STUN ***")
+            stun=True
+    if(stun and damageTaken>15 and not uncon):
+        if(choice(d10)>body-floor((damageTaken-1)/5)-3):
+            print("-=- UNCON -=-")
+            uncon=True
+        
 
 ##################### INIT ########################################################################
 
@@ -301,12 +328,6 @@ while(True):
             break
     else:
         clr()
-        if(input("Wildcard(y/N): ").__contains__("y")):
-            print("Wildcard")
-            wildcard=True
-        else:
-            print("Non wildcard")
-        print()
         setBody()
         print()
         initSP()
@@ -316,8 +337,13 @@ while(True):
 
 while(True):
     clr()
-    if(wildcard):
-        print("-=- *WILDCARD* -=-\n")
+    if(wildcard or autostun):
+        if(wildcard):
+            print("-=- *WILDCARD* -=-  ",end="")
+        if(autostun):
+            print("@--Autostun ON--@",end="")
+        print("\n")
+    
     renderDamage()
     if(floor((damageTaken-1)/5)-3>0):
             print(f"@ ALL ROLLS -{floor((damageTaken-1)/5)-3} @")
@@ -344,7 +370,7 @@ while(True):
 (C) Called Shot
 (R) Random Location
 
-(SAVE) (LOAD) (NEW)
+(SAVE) (LOAD) (NEW) (AUTO) (WILD)
     """)
     temp=input("Input Option: ").lower()
     clr()
@@ -434,7 +460,7 @@ while(True):
         damageTaken=int(input(f"Set damage taken (old: {damageTaken}): "))
         continue
 
-    if(temp=="btm"):
+    if(temp=="btm" or temp=="body"):
         setBody()
         continue
 
@@ -452,9 +478,6 @@ while(True):
 
     if(temp=="new"):
         wildcard=False
-        if(input("Wildcard(y/N): ").__contains__("y")):
-            wildcard=True
-        print()
         setBody()
         print()
         initSP()
@@ -465,7 +488,15 @@ while(True):
         stun=False
         uncon=False
         dead=False
+        continue
 
+    if(temp=="auto" or temp=="autostun"):
+        autostun=not autostun
+        continue
+
+    if(temp=="wild" or temp=="wildcard"):
+        wildcard=not wildcard
+        continue
 
     if(temp=="head"):
         sp[0] = input("Set head SP: ")
@@ -534,6 +565,7 @@ while(True):
             damageTaken+=output
             if(input(f"Dealt {output} damage to {LOCATIONS[i]}, ENTER to Continue\n").lower()=="x"):
                 break
+        continue
 
     if(temp=="r"):
         iterations=0
