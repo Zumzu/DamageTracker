@@ -324,15 +324,38 @@ def loadState(name):
     
     return True
 
+def rollD10():
+    d10=[1,2,3,4,5,6,7,8,9,10]
+    total=0
+
+    roll=choice(d10)
+    total=roll
+
+    if(roll==1):
+        while(True):
+            roll=choice(d10)
+            total-=roll
+            if(roll!=10):
+                break
+
+    elif(roll==10):
+        while(True):
+            roll=choice(d10)
+            total+=roll
+            if(roll!=10):
+                break
+
+    return total
+
 def rollStun():
     global stun,uncon
-    d10=[1,2,3,4,5,6,7,8,9,10]
+    
     if(not stun):
-        if(choice(d10)>body-floor((damageTaken-1)/5)):
+        if(rollD10()>body-floor((damageTaken-1)/5)):
             print("*** STUN ***")
             stun=True
     if(stun and damageTaken>15 and not uncon):
-        if(choice(d10)>body-floor((damageTaken-1)/5)-3):
+        if(rollD10()>body-floor((damageTaken-1)/5)-3):
             print("-=- UNCON -=-")
             uncon=True
         
