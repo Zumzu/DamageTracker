@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from math import ceil,floor
 from random import choice,randint
 import os
@@ -276,12 +278,31 @@ def saveState():
     with open(f"{name}.txt", "w") as f:
         f.write(data)
 
+def reset():
+    global wildcard,autostun,btm,body,sp,stun,uncon,dead,damageTaken,shotCount,bulletType,barrier,exposed
+    exposed=set()
+    bulletType="normal"
+    stun=False
+    uncon=False
+    dead=False
+    wildcard=False
+    autostun=False
+    sp=[0]*7
+    body=6
+    btm=2
+    damageTaken=0
+    shotCount=0
+    barrier=0
+
+
 def loadState(name):
     global wildcard,autostun,btm,body,sp
-
     try:
         with open(f"{name}.txt", "r") as f:
             data=f.read().split(";")
+
+            reset()
+            
             wildcard=data[0]
             autostun=data[1]
 
@@ -322,7 +343,7 @@ def rollStun():
 
 while(True):
     clr()
-    temp=input("If loading from file, enter its name\nIf fresh instance, leave blank\n\nChoice: ")
+    temp=input("If loading from file, enter its name\nIf fresh instance, leave blank\n\n: ")
     if(temp!=""):
         if(loadState(temp)):
             break
@@ -441,7 +462,9 @@ while(True):
     if(temp=="name"):
         if(WINDOWS):
             os.system("title "+input("Enter new window name: ").upper())
-            continue
+        else: #linux
+            os.system("set-title "+input("Enter new window name: ").upper())
+        continue
 
     if(temp=="save"):
         saveState()
@@ -477,17 +500,10 @@ while(True):
         continue
 
     if(temp=="new"):
-        wildcard=False
+        reset()
         setBody()
         print()
         initSP()
-        barrier=0
-        bulletType="normal"
-        damageTaken=0
-        shotCount=0
-        stun=False
-        uncon=False
-        dead=False
         continue
 
     if(temp=="auto" or temp=="autostun"):
