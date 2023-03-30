@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from math import ceil,floor
 from random import choice,randint
 import os
