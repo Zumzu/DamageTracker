@@ -165,7 +165,10 @@ def setBody():
         btm=floor(temp/2-1)
 
 def printSP():
-    print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]  (BTM): {btm}")
+    print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]  (BTM): {btm}",end="")
+    if(floor((damageTaken-1)/5)>0):
+        print(f"  Stun: -{floor((damageTaken-1)/5)}",end="")
+    print()
 
 def initSP():
     global sp
@@ -316,8 +319,10 @@ while(True):
     if(wildcard):
         print("-=- *WILDCARD* -=-\n")
     renderDamage()
+    if(floor((damageTaken-1)/5)-3>0):
+            print(f"@ ALL ROLLS -{floor((damageTaken-1)/5)-3} @")
     if(stun or uncon or dead):
-        print("Status: ",end="")
+        print("\nStatus: ",end="")
         if(stun):
             print("*STUN* ",end="")
         if(uncon):
@@ -325,7 +330,7 @@ while(True):
         if(dead):
             print("###DEAD### ",end="")
         print()
-
+        
     print()
     printSP()
     print(f"\n(BAR) Barrier SP: {barrier}")
