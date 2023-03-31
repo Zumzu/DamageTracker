@@ -132,9 +132,6 @@ bulletType="normal" #normal,bullet,knife,
 barrier=0
 exposed=set()
 
-if(WINDOWS):
-    os.system("title Unnamed DT")
-
 temp=""
 
 autostun=False
@@ -322,6 +319,9 @@ def loadState(name):
     except:
         return False
     
+    if(WINDOWS):
+        os.system(f"title {name}")
+    
     return True
 
 def rollD10():
@@ -361,6 +361,9 @@ def rollStun():
         
 
 ##################### INIT ########################################################################
+
+if(WINDOWS):
+    os.system("title Unnamed DT")
 
 while(True):
     clr()
