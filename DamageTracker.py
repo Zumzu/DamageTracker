@@ -119,7 +119,7 @@ def dealDamage(damage,index):
 ############################ ^^^ BIG BOTCHED AND SCARY DAMAGE FUNCTION ^^^  +imports lol
 
 WINDOWS=system()=="Windows"
-LOCATIONS=["Head","Torso","Larm","Rarm","Lleg","Rleg"]
+LOCATIONS=["Head","Torso","Larm","Rarm","Lleg","Rleg","Other"]
 RANDLOCATION=[0,1,1,1,1,1,2,3,4,5]
 
 shotCount=0
