@@ -125,6 +125,7 @@ RANDLOCATION=[0,1,1,1,1,1,2,3,4,5]
 shotCount=0
 damageTaken=0
 wildcard=False
+hide=False
 btm=0
 body=6
 sp=[0]*7
@@ -167,7 +168,11 @@ def setBody():
         btm=floor(temp/2-1)
 
 def printSP():
-    print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]  (BTM): {btm}  (BODY): {body}",end="")
+    if(not hide):
+        print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]  (BTM): {btm}  (BODY): {body}",end="")
+    else:
+        print(f"(SP) - [/] [/] [/|/] [/|/]  (BTM/BODY): ///",end="")
+
     if(floor((damageTaken-1)/5)>0):
         print(f"  Stun: -{floor((damageTaken-1)/5)}",end="")
     print()
@@ -382,11 +387,13 @@ while(True):
 
 while(True):
     clr()
-    if(wildcard or autostun):
+    if(wildcard or autostun or hide):
         if(wildcard):
             print("-=- *WILDCARD* -=-  ",end="")
         if(autostun):
-            print("@--Autostun ON--@",end="")
+            print("@--Autostun ON--@  ",end="")
+        if(hide):
+            print("// HIDDEN //  ",end="")
         print("\n")
     
     renderDamage()
@@ -430,6 +437,10 @@ while(True):
 
     if(temp=="dead"):
         dead=not dead
+        continue
+
+    if(temp=="hide"):
+        hide=not hide
         continue
 
     if(temp=="status"):
