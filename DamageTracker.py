@@ -5,7 +5,7 @@ from platform import system
  
 def dealDamage(damage,index):
     global barrier,sp,shotCount,bulletType,dead,autostun
-    if(bulletType=="normal" or bulletType=="n" or bulletType=="knife" or bulletType=="k" or bulletType=="f" or bulletType=="full"):
+    if(not bulletType=="b" and not bulletType=="bullet"):
         
         if(not index in exposed):
             if(bulletType=="f" or bulletType=="full"):
@@ -19,7 +19,7 @@ def dealDamage(damage,index):
         if(bulletType=="f" or bulletType=="full"):
             if(damage>=sp[index]/2 and sp[index]>0):
                 sp[index]-=1
-        elif(bulletType=="knife" or bulletType=="k"):
+        elif(bulletType=="knife" or bulletType=="k" or bulletType=="traditional" or bulletType=="t"):
             damage-=floor(sp[index]/2)
             if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
                 sp[index]-=1
@@ -100,8 +100,6 @@ def dealDamage(damage,index):
                 print(f"### CRITICAL INJURY TO TORSO ###")
 
         #end bullet type == ap
-    elif(bulletType=="knife" or bulletType=="k"):
-        pass
 
     else:#Undefined bullet type
         bulletType="normal"
@@ -122,23 +120,39 @@ WINDOWS=system()=="Windows"
 LOCATIONS=["Head","Torso","Larm","Rarm","Lleg","Rleg","Other"]
 RANDLOCATION=[0,1,1,1,1,1,2,3,4,5]
 
-shotCount=0
-damageTaken=0
-wildcard=False
-hide=False
-btm=0
-body=6
-sp=[0]*7
-bulletType="normal" #normal,bullet,knife,
-barrier=0
-exposed=set()
 
+#string
+bulletType="normal"
 temp=""
 
-autostun=False
+#ints
+shotCount=0
+damageTaken=0
+btm=0
+body=6
+barrier=0
+
+#list/set
+sp=[0]*7
+exposed=set()
+
+#Flags
 stun=False
 uncon=False
 dead=False
+
+autostun=False
+wildcard=False
+hide=False
+
+#undo Vars
+undoSP=sp
+undoDMG=damageTaken
+undoBar=barrier
+undoShot=shotCount
+undoStun=stun
+undoUncon=uncon
+undoDead=dead
 
 ############################ ^^^ Globals cause Im a TERRIBLE programmer
 
@@ -146,11 +160,11 @@ def setBulletType():
     global bulletType
     bulletType=input("""Ammo Types:
 (N)/(Normal) - Standard Ammo
-(B)/(Bullet) - SP treated as half, half damage through
-(K)/(Knife) - SP treated as half, full damage through
-(F)/(Full) - SP ignored (still degraded), full damage through
+(B:AP) - SP treated as half, half damage through
+(T:AP) - SP treated as half, full damage through (also called K:AP)
+(F:AP) - SP ignored (still degraded), full damage through
     
-Ammo Type: """).lower()
+Ammo Type: """).split(":")[0].lower()
 
 def setBody():
     global btm,body
@@ -422,10 +436,29 @@ while(True):
 (C) Called Shot
 (R) Random Location
 
-(SAVE) (LOAD) (NEW) (AUTO) (WILD)
+   (AUTO) (WILD) (HIDE)
+(SAVE) (LOAD) (NEW) (UNDO)
     """)
     temp=input("Input Option: ").lower()
     clr()
+
+    if(temp=="undo"):
+        sp=list(undoSP)
+        damageTaken=undoDMG
+        barrier=undoBar
+        shotCount=undoShot
+        stun=undoStun
+        uncon=undoUncon
+        dead=undoDead
+        continue
+    else:
+        undoSP=list(sp)
+        undoDMG=damageTaken
+        undoBar=barrier
+        undoShot=shotCount
+        undoStun=stun
+        undoUncon=uncon
+        undoDead=dead
 
     if(temp=="stun"):
         stun=not stun
