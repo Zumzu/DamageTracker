@@ -5,7 +5,7 @@ from platform import system
  
 #class Unit:
 
-def dealDamage(damage,index):
+def dealDamage(damage,index,silent=False):
     global barrier,sp,shotCount,bulletType,dead,autostun
 
     if(not index in exposed):
@@ -26,17 +26,32 @@ def dealDamage(damage,index):
         
     if(bulletType=="f"):
         if(damage>=sp[index]/2 and sp[index]>0):
+            if(not silent):
+                print("-",end="")
             sp[index]-=1
+        else:
+            if(not silent):
+                print(" ",end="")
 
     elif(bulletType=="k" or bulletType=="t" or bulletType=="b"):
         damage-=floor(sp[index]/2)
         if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
+            if(not silent):
+                print("-",end="")
             sp[index]-=1
+        else:
+            if(not silent):
+                print(" ",end="")
 
     else:#normal
         damage-=sp[index]
         if(damage+sp[index]>=sp[index]/2 and sp[index]>0):
+            if(not silent):
+                print("-",end="")
             sp[index]-=1
+        else:
+            if(not silent):
+                print(" ",end="")
 
     #end sp reduction and degredation
         
@@ -47,7 +62,8 @@ def dealDamage(damage,index):
                 damage*=2
 
             if (damage>=8):
-                print(f"### INSTA-KILL, {damage} to head before BTM ###")
+                if(not silent):
+                    print(f"### INSTA-KILL, {damage} to head before BTM ###")
                 dead=True
 
             if(bulletType=="b"):
@@ -63,7 +79,8 @@ def dealDamage(damage,index):
                 damage=max(1,damage-btm)
 
             if(damage>=8):
-                print(f"### INSTA-KILL, {damage} to head *before double* ###")
+                if(not silent):
+                    print(f"### INSTA-KILL, {damage} to head *before double* ###")
                 dead=True
 
             damage*=2
@@ -72,16 +89,22 @@ def dealDamage(damage,index):
         if(bulletType=="b"):
             damage=floor(damage/2)
         
-        if(not wildcard):
-            critInjury(damage,index)
+        if(not silent and not wildcard):
+            if(damage>=8 and index>1):
+                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
+            if(damage>=15 and index==1):
+                print(f"### CRITICAL INJURY TO TORSO ###")
 
         if(bulletType!="b"):
             damage=max(1,damage-btm)
         else:
             damage-=btm #stipulation for BTM does not apply to AP rounds
         
-        if(wildcard):
-            critInjury(damage,index)
+        if(not silent and wildcard):
+            if(damage>=8 and index>1):
+                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
+            if(damage>=15 and index==1):
+                print(f"### CRITICAL INJURY TO TORSO ###")
         
     shotCount+=1
 
@@ -126,13 +149,6 @@ wildcard=False
 
 ############################ ^^^ Globals cause Im a TERRIBLE programmer
 
-def critInjury(dmg,loc):
-    if(dmg>=8 and loc>1):
-        print(f"### CRITICAL INJURY TO {LOCATIONS[loc].upper()} ###")
-        #add crit injury flag
-    if(dmg>=15 and loc==1):
-        print(f"### CRITICAL INJURY TO TORSO ###")
-
 def setBulletType():
     global bulletType
     bulletType=input("""Ammo Types:
@@ -143,20 +159,22 @@ def setBulletType():
     
 Ammo Type: """).split(":")[0].lower()
 
-def setBody():
+def initBody():
     global btm,body
     temp=input("Set body: ")
-    if(temp==""):
+    if(temp=="" or not temp.isnumeric()):
         temp=6
         print("defaulted to body: 6, btm: 2")
-    temp=int(temp)
-    body=temp
-    if(temp>10):
-        btm=5
-    elif(temp<6):
-        btm=ceil(temp/2-1)
+    body=int(temp)
+    bodyToBTM(body)
+
+def bodyToBTM(body):
+    if(body>10):
+        return 5
+    elif(body<6):
+        return ceil(body/2-1)
     else:
-        btm=floor(temp/2-1)
+        return floor(body/2-1)
 
 def printSP():
     if(not hide):
@@ -308,16 +326,11 @@ def loadState(name):
 
             reset()
             
-            wildcard=data[0]
-            autostun=data[1]
+            wildcard=data[0]=='True'
+            autostun=data[1]=='True'
 
             body=int(data[3])
-            if(body>10):
-                btm=5
-            elif(body<6):
-                btm=ceil(body/2-1)
-            else:
-                btm=floor(body/2-1)
+            btm=bodyToBTM(body)
 
             input_sp=[int(i) for i in data[2].split(",")]
             sp=[0]*7
@@ -370,7 +383,7 @@ def rollStun():
             uncon=True
 
 
-def main():
+def main():#### MAIN ####
     global sp,body,btm,damageTaken,  stun,uncon,dead,wildcard#<-can be bundled
     global bulletType,shotCount,barrier,exposed
     global autostun,hide
@@ -386,7 +399,7 @@ def main():
                 break
         else:
             clr()
-            setBody()
+            initBody()
             print()
             initSP()
             break
@@ -546,7 +559,7 @@ def main():
             continue
 
         if(temp=="btm" or temp=="body"):
-            setBody()
+            initBody()
             continue
 
         if(temp=="am"):
@@ -563,7 +576,7 @@ def main():
 
         if(temp=="new"):
             reset()
-            setBody()
+            initBody()
             print()
             initSP()
             continue
