@@ -3,74 +3,10 @@ from random import choice,randint
 import os
 from platform import system
  
-class Unit:
-    wildcard=False
-    sp=[0]*7
-    btm=0
-    body=6
-    damageTaken=0
+#class Unit:
 
-    #shooting=9 unused
-    
-    stun=False
-    uncon=False
-    dead=False
-    
-    def __init__(self):
-        initBody(self)
-        initSP(self)
-
-    def __init__(self,sp,body,wildcard):
-        self.sp=sp
-        self.body=body
-        self.btm=bodyToBTM(self.body)
-        self.wildcard=wildcard
-
-    def stunMod(self):
-        return floor((self.damageTaken-1)/5)
-
-    def unconMod(self):#does not need to exist, just a macro for convinience
-        return self.allNegative()
-
-    def allNegative(self):
-        return max(floor((self.damageTaken-1)/5)-3,0)
-    
-    def rollStun(self,silent=False):
-        if(not self.stun):
-            if(rollD10()>self.body-self.stunMod()):
-                if(not silent):
-                    print("*** STUN ***")
-                self.stun=True
-    
-        if(self.stun and self.damageTaken>15 and not self.uncon):
-            if(rollD10()>self.body-self.unconMod()):
-                if(not silent):
-                    print("-=- UNCON -=-")
-                self.uncon=True
-
-    def reset(self):
-        self.sp=[0]*7
-        self.body=6
-        self.btm=2
-        self.damageTaken=0
-        self.stun=False
-        self.uncon=False
-        self.dead=False
-        self.wildcard=False
-
-
-
-
-############################ ^^^ CLASS ^^^  +imports lol
-
-def dealDamage(unit,damage,index,bulletType,silent=False):
-    global barrier,shotCount,dead,autostun
-
-    sp=unit.sp
-    btm=unit.btm
-    damageTaken=unit.damageTaken
-    dead=unit.dead
-    wildcard=unit.wildcard
+def dealDamage(damage,index,silent=False):
+    global barrier,sp,shotCount,bulletType,dead,autostun
 
     if(not index in exposed):
         if(bulletType=="f"):
@@ -90,32 +26,17 @@ def dealDamage(unit,damage,index,bulletType,silent=False):
         
     if(bulletType=="f"):
         if(damage>=sp[index]/2 and sp[index]>0):
-            if(not silent):
-                print("-",end="")
             sp[index]-=1
-        else:
-            if(not silent):
-                print(" ",end="")
 
     elif(bulletType=="k" or bulletType=="t" or bulletType=="b"):
         damage-=floor(sp[index]/2)
         if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
-            if(not silent):
-                print("-",end="")
             sp[index]-=1
-        else:
-            if(not silent):
-                print(" ",end="")
 
     else:#normal
         damage-=sp[index]
         if(damage+sp[index]>=sp[index]/2 and sp[index]>0):
-            if(not silent):
-                print("-",end="")
             sp[index]-=1
-        else:
-            if(not silent):
-                print(" ",end="")
 
     #end sp reduction and degredation
         
@@ -174,13 +95,13 @@ def dealDamage(unit,damage,index,bulletType,silent=False):
 
     if(damage>0):
         if(autostun):
-            unit.rollStun()
-        damageTaken+=damage
+            rollStun()
         return damage
 
     return 0
 
-############################ ^^^ BIG BUT LESS AWFUL DAMAGE FUNCTION ^^^  ##################################
+############################ ^^^ BIG BUT LESS AWFUL DAMAGE FUNCTION ^^^  +imports lol
+
 
 #Macros
 WINDOWS=system()=="Windows"
@@ -195,27 +116,42 @@ exposed=set()
 autostun=False
 hide=False
 
+#Class Logic ()
+damageTaken=0
+btm=0
+body=6
+sp=[0]*7
+
+stun=False
+uncon=False
+dead=False
+wildcard=False
 #status=set() < future plan for status flags (dynamic set)
+
+
+
 
 
 ############################ ^^^ Globals cause Im a TERRIBLE programmer
 
-def askBulletType():
-    return(input("""Ammo Types:
+def setBulletType():
+    global bulletType
+    bulletType=input("""Ammo Types:
 (N)/(Normal) - Standard Ammo
 (B:AP) - SP treated as half, half damage through
 (T:AP) - SP treated as half, full damage through (also called K:AP)
 (F:AP) - SP ignored (still degraded), full damage through
     
-Ammo Type: """).split(":")[0].lower())
+Ammo Type: """).split(":")[0].lower()
 
-def initBody(unit):
+def initBody():
+    global btm,body
     temp=input("Set body: ")
     if(temp=="" or not temp.isnumeric()):
         temp=6
         print("defaulted to body: 6, btm: 2")
-    unit.body=int(temp)
-    unit.btm=bodyToBTM(unit.body)
+    body=int(temp)
+    bodyToBTM(body)
 
 def bodyToBTM(body):
     if(body>10):
@@ -225,25 +161,27 @@ def bodyToBTM(body):
     else:
         return floor(body/2-1)
 
-def printSP(unit):
+def printSP():
     if(not hide):
-        print(f"(SP) - [{unit.sp[0]}] [{unit.sp[1]}] [{unit.sp[2]}|{unit.sp[3]}] [{unit.sp[4]}|{unit.sp[5]}]  (BTM): {unit.btm}  (BODY): {unit.body}",end="")
+        print(f"(SP) - [{sp[0]}] [{sp[1]}] [{sp[2]}|{sp[3]}] [{sp[4]}|{sp[5]}]  (BTM): {btm}  (BODY): {body}",end="")
     else:
         print(f"(SP) - [/] [/] [/|/] [/|/]  (BTM/BODY): ///",end="")
 
-    if(unit.stunMod()>0):
-        print(f"  Stun: -{unit.stunMod()}",end="")
+    if(floor((damageTaken-1)/5)>0):
+        print(f"  Stun: -{floor((damageTaken-1)/5)}",end="")
+
     print()
 
-def printBarrier(barrier,exposed):
+def printBarrier():
     print(f"\n(BAR) Barrier SP: {barrier}")
     if(barrier>0):
         if(len(exposed)>0):
-            print(f"(EXP) Exposed areas: {exposedString(exposed)}")
+            print(f"(EXP) Exposed areas: {exposedString()}")
         else:
             print("(EXP) Exposed")
 
-def exposedString(exposed):
+def exposedString():
+    global exposed
     output=""
     if(0 in exposed):
         output+="(Head) "
@@ -259,7 +197,8 @@ def exposedString(exposed):
         output+="(Rleg) "
     return output
 
-def initSP(unit):
+def initSP():
+    global sp
     sp=[0]*7
     userin=input("SP format \"H,T,L,R,L,R\", \"H,T,A,L\", \"H,T/A,L\", \"H,T/A\" or \"ALL\"\nSP: ").split(",")
     if(len(userin)==1 and userin[0]!=""):
@@ -284,16 +223,7 @@ def initSP(unit):
                 sp[i]=0
             else:
                 sp[i]=userin[i]
-
-    for i in sp:
-        if(not i.isnumeric()):
-            print("@@SP INIT FAILURE@@")
-            sp=[0]*7
-            return
-
     sp=[int(i) for i in sp]
-
-    unit.sp=sp
 
 def processDamage(input):
     output=0
@@ -319,10 +249,11 @@ def processDamage(input):
 
     return output
 
-def renderDamage(unit):
+def renderDamage():
+    global dead,btm
     i=0
-    print(f"(DMG): {unit.damageTaken} - [",end="")
-    for _ in range(unit.damageTaken):
+    print(f"(DMG): {damageTaken} - [",end="")
+    for _ in range(damageTaken):
         i+=1
         print("#",end="")
         if(i%10==0):
@@ -330,9 +261,9 @@ def renderDamage(unit):
         elif(i%5==0):
             print("|",end="")
         if(i==50):
-            unit.dead=True
+            dead=True
             break
-    for _ in range(50-unit.damageTaken):
+    for _ in range(50-damageTaken):
         i+=1
         print(".",end="")
         if(i%10==0):
@@ -347,36 +278,44 @@ def clr():
     else:
         os.system('clear')
 
-def saveState(unit):
+def saveState():
     clr()
-    name=input("Save name: ")
-    data=f"{unit.wildcard};{autostun};{unit.sp[0]},{unit.sp[1]},{unit.sp[2]},{unit.sp[3]},{unit.sp[4]},{unit.sp[5]};{unit.body}"
+    name=input("Save name (no input for default load set): ")
+    data=f"{wildcard};{autostun};{sp[0]},{sp[1]},{sp[2]},{sp[3]},{sp[4]},{sp[5]};{body}"
 
     with open(f"{name}.txt", "w") as f:
         f.write(data)
 
-
-def reset():#temp
-    global autostun,shotCount,bulletType,barrier,exposed
+def reset():
+    global wildcard,autostun,btm,body,sp,stun,uncon,dead,damageTaken,shotCount,bulletType,barrier,exposed
     exposed=set()
     bulletType="normal"
+    stun=False
+    uncon=False
+    dead=False
+    wildcard=False
     autostun=False
+    sp=[0]*7
+    body=6
+    btm=2
+    damageTaken=0
     shotCount=0
     barrier=0
 
-def loadState(name,unit):
-    global autostun
+
+def loadState(name):
+    global wildcard,autostun,btm,body,sp
     try:
         with open(f"{name}.txt", "r") as f:
             data=f.read().split(";")
 
             reset()
             
-            unit.wildcard=data[0]=='True'
+            wildcard=data[0]=='True'
             autostun=data[1]=='True'
 
-            unit.body=int(data[3])
-            unit.btm=bodyToBTM(unit.body)
+            body=int(data[3])
+            btm=bodyToBTM(body)
 
             input_sp=[int(i) for i in data[2].split(",")]
             sp=[0]*7
@@ -384,8 +323,6 @@ def loadState(name,unit):
                 if(i==6):
                     break
                 sp[i]=input_sp[i]
-
-            unit.sp=sp
 
     except:
         return False
@@ -418,12 +355,25 @@ def rollD10():
 
     return total
 
+def rollStun():
+    global stun,uncon
+    
+    if(not stun):
+        if(rollD10()>body-floor((damageTaken-1)/5)):
+            print("*** STUN ***")
+            stun=True
+    if(stun and damageTaken>15 and not uncon):
+        if(rollD10()>body-floor((damageTaken-1)/5)-3):
+            print("-=- UNCON -=-")
+            uncon=True
+
 
 def main():#### MAIN ####
+    #To put in object
+    global sp,body,btm,damageTaken,  stun,uncon,dead,wildcard#<-can be bundled
+
     #To hide in main
     global bulletType,shotCount,barrier,exposed,autostun,hide
-
-    unit=Unit()
 
     if(WINDOWS):
         os.system("title Unnamed DT")
@@ -436,7 +386,7 @@ def main():#### MAIN ####
                 break
         else:
             clr()
-            initBody(unit)
+            initBody()
             print()
             initSP()
             break
@@ -596,11 +546,11 @@ def main():#### MAIN ####
             continue
 
         if(temp=="btm" or temp=="body"):
-            initBody(unit)
+            initBody()
             continue
 
         if(temp=="am"):
-            bulletType=askBulletType()
+            setBulletType()
             continue
 
         if(temp=="sht"):
@@ -612,7 +562,10 @@ def main():#### MAIN ####
             continue
 
         if(temp=="new"):
-            unit=Unit()
+            reset()
+            initBody()
+            print()
+            initSP()
             continue
 
         if(temp=="auto" or temp=="autostun"):
