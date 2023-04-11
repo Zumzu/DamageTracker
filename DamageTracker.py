@@ -384,9 +384,11 @@ def rollStun():
 
 
 def main():#### MAIN ####
+    #To put in object
     global sp,body,btm,damageTaken,  stun,uncon,dead,wildcard#<-can be bundled
-    global bulletType,shotCount,barrier,exposed
-    global autostun,hide
+
+    #To hide in main
+    global bulletType,shotCount,barrier,exposed,autostun,hide
 
     if(WINDOWS):
         os.system("title Unnamed DT")
