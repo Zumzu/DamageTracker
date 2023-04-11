@@ -3,107 +3,85 @@ from random import choice,randint
 import os
 from platform import system
  
+#class Unit:
+
 def dealDamage(damage,index):
     global barrier,sp,shotCount,bulletType,dead,autostun
-    if(not bulletType=="b" and not bulletType=="bullet"):
-        
-        if(not index in exposed):
-            if(bulletType=="f" or bulletType=="full"):
-                if(damage>=barrier/2 and barrier>0):
-                    barrier-=1
-            else:#bullet type not full AP
-                damage-=barrier
-                if(damage+barrier>=barrier/2 and barrier>0):
-                    barrier-=1
-        
-        if(bulletType=="f" or bulletType=="full"):
-            if(damage>=sp[index]/2 and sp[index]>0):
-                sp[index]-=1
-        elif(bulletType=="knife" or bulletType=="k" or bulletType=="traditional" or bulletType=="t"):
-            damage-=floor(sp[index]/2)
-            if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
-                sp[index]-=1
-        else:#normal
-            damage-=sp[index]
-            if(damage+sp[index]>=sp[index]/2 and sp[index]>0):
-                sp[index]-=1
-        
-        if(index==0):#head
-            if(not wildcard):#not wildcard
-                damage*=2
-                if (damage>=8):
-                    print(f"### INSTA-KILL, {damage} to head before BTM ###")
-                    dead=True
-                if(damage>0):
-                    damage=max(1,damage-btm)
 
-            else:#wildcard
-                if(damage>0):
-                    damage=max(1,damage-btm)
-                if(damage>=8):
-                    print(f"### INSTA-KILL, {damage} to head *before double* ###")
-                    dead=True
-                damage*=2
+    if(not index in exposed):
+        if(bulletType=="f"):
+            if(damage>=barrier/2 and barrier>0):
+                barrier-=1
 
-        elif(damage>0):#not head AND damage exists
-            if(not wildcard and damage>=8 and index>1):
-                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
-            if(not wildcard and damage>=15 and index==1):
-                print(f"### CRITICAL INJURY TO TORSO ###")
-
-            damage=max(1,damage-btm)
-
-            if(wildcard and damage>=8 and index>1):
-                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
-            if(wildcard and damage>=15 and index==1):
-                print(f"### CRITICAL INJURY TO TORSO ###")
-
-    elif(bulletType=="bullet" or bulletType=="b"):
-
-        if(not index in exposed):
+        elif(bulletType=="b"):
             damage-=floor(barrier/2)
             if(damage+floor(barrier/2)>=floor(barrier/4) and barrier>0):
                 barrier-=1
 
+        else:#bullet type not full AP
+            damage-=barrier
+            if(damage+barrier>=barrier/2 and barrier>0):
+                barrier-=1
+    #end exposed
+        
+    if(bulletType=="f"):
+        if(damage>=sp[index]/2 and sp[index]>0):
+            sp[index]-=1
+
+    elif(bulletType=="k" or bulletType=="t" or bulletType=="b"):
         damage-=floor(sp[index]/2)
         if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
             sp[index]-=1
 
-        if(index==0):#head
-            if(not wildcard):#not wildcard
-                if (damage>=8):
-                    print(f"### INSTA-KILL, {damage} to head before BTM ###")
-                    dead=True
-                damage-=btm
+    else:#normal
+        damage-=sp[index]
+        if(damage+sp[index]>=sp[index]/2 and sp[index]>0):
+            sp[index]-=1
 
-            else:#wildcard
-                damage=floor(damage/2)
-                damage-=btm
-                if(damage>=8):
-                    print(f"### INSTA-KILL, {damage} to head *before double* ###")
-                    dead=True
+    #end sp reduction and degredation
+        
+        
+    if(index==0):#head
+        if(not wildcard):#not wildcard
+            if(bulletType!="b"):
                 damage*=2
 
-        else:#not head
+            if (damage>=8):
+                print(f"### INSTA-KILL, {damage} to head before BTM ###")
+                dead=True
+
+            if(bulletType=="b"):
+                damage-=btm
+            elif(damage>0):
+                damage=max(1,damage-btm)
+
+        else:#wildcard
+            if(bulletType=="b"):
+                damage=floor(damage/2)
+                damage-=btm
+            elif(damage>0):
+                damage=max(1,damage-btm)
+
+            if(damage>=8):
+                print(f"### INSTA-KILL, {damage} to head *before double* ###")
+                dead=True
+
+            damage*=2
+
+    elif(damage>0):#not head AND damage exists
+        if(bulletType=="b"):
             damage=floor(damage/2)
-            
-            if(not wildcard and damage>=8 and index>1):
-                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
-            if(not wildcard and damage>=15 and index==1):
-                print(f"### CRITICAL INJURY TO TORSO ###")
+        
+        if(not wildcard):
+            critInjury(damage,index)
 
-            damage-=btm
-            
-            if(wildcard and damage>=8 and index>1):
-                print(f"### CRITICAL INJURY TO {LOCATIONS[index].upper()} ###")
-            if(wildcard and damage>=15 and index==1):
-                print(f"### CRITICAL INJURY TO TORSO ###")
-
-        #end bullet type == ap
-
-    else:#Undefined bullet type
-        bulletType="normal"
-        return dealDamage(damage,index)
+        if(bulletType!="b"):
+            damage=max(1,damage-btm)
+        else:
+            damage-=btm #stipulation for BTM does not apply to AP rounds
+        
+        if(wildcard):
+            critInjury(damage,index)
         
     shotCount+=1
 
@@ -114,47 +92,46 @@ def dealDamage(damage,index):
 
     return 0
 
-############################ ^^^ BIG BOTCHED AND SCARY DAMAGE FUNCTION ^^^  +imports lol
+############################ ^^^ BIG BUT LESS AWFUL DAMAGE FUNCTION ^^^  +imports lol
 
+
+#Macros
 WINDOWS=system()=="Windows"
 LOCATIONS=["Head","Torso","Larm","Rarm","Lleg","Rleg","Other"]
 RANDLOCATION=[0,1,1,1,1,1,2,3,4,5]
 
-
-#string
+#Program Logic (will be placed in main)
 bulletType="normal"
-temp=""
-
-#ints
 shotCount=0
+barrier=0
+exposed=set()
+autostun=False
+hide=False
+
+#Class Logic ()
 damageTaken=0
 btm=0
 body=6
-barrier=0
-
-#list/set
 sp=[0]*7
-exposed=set()
 
-#Flags
 stun=False
 uncon=False
 dead=False
-
-autostun=False
 wildcard=False
-hide=False
+#status=set() < future plan for status flags (dynamic set)
 
-#undo Vars
-undoSP=sp
-undoDMG=damageTaken
-undoBar=barrier
-undoShot=shotCount
-undoStun=stun
-undoUncon=uncon
-undoDead=dead
+
+
+
 
 ############################ ^^^ Globals cause Im a TERRIBLE programmer
+
+def critInjury(dmg,loc):
+    if(dmg>=8 and loc>1):
+        print(f"### CRITICAL INJURY TO {LOCATIONS[loc].upper()} ###")
+        #add crit injury flag
+    if(dmg>=15 and loc==1):
+        print(f"### CRITICAL INJURY TO TORSO ###")
 
 def setBulletType():
     global bulletType
@@ -189,7 +166,33 @@ def printSP():
 
     if(floor((damageTaken-1)/5)>0):
         print(f"  Stun: -{floor((damageTaken-1)/5)}",end="")
+
     print()
+
+def printBarrier():
+    print(f"\n(BAR) Barrier SP: {barrier}")
+    if(barrier>0):
+        if(len(exposed)>0):
+            print(f"(EXP) Exposed areas: {exposedString()}")
+        else:
+            print("(EXP) Exposed")
+
+def exposedString():
+    global exposed
+    output=""
+    if(0 in exposed):
+        output+="(Head) "
+    if(1 in exposed):
+        output+="(Torso) "
+    if(2 in exposed):
+        output+="(Larm) "
+    if(3 in exposed):
+        output+="(Rarm) "
+    if(4 in exposed):
+        output+="(Lleg) "
+    if(5 in exposed):
+        output+="(Rleg) "
+    return output
 
 def initSP():
     global sp
@@ -219,39 +222,27 @@ def initSP():
                 sp[i]=userin[i]
     sp=[int(i) for i in sp]
 
-def exposedString():
-    global exposed
-    output=""
-    if(0 in exposed):
-        output+="(Head) "
-    if(1 in exposed):
-        output+="(Torso) "
-    if(2 in exposed):
-        output+="(Larm) "
-    if(3 in exposed):
-        output+="(Rarm) "
-    if(4 in exposed):
-        output+="(Lleg) "
-    if(5 in exposed):
-        output+="(Rleg) "
-    return output
-
 def processDamage(input):
     output=0
     input=str(input)
 
-    input=input.lower().strip().split("+")
+    try:
+        input=input.lower().strip().split("+")
 
-    for item in input:
-        if(item.__contains__("d")):
-            multiple,dieType=item.split("d")
-            if(multiple==""):
-                multiple=1
-            for _ in range(int(multiple)):
-                output+=randint(1,int(dieType))
-            
-        else:#its just a number
-            output+=int(item)
+        for item in input:
+            if(item.__contains__("d")):
+                multiple,dieType=item.split("d")
+                if(multiple==""):
+                    multiple=1
+                for _ in range(int(multiple)):
+                    output+=randint(1,int(dieType))
+
+            else:#its just a number
+                output+=int(item)
+    
+    except:
+        print("@@FAILED DMG EVAL@@")
+        return 0
 
     return output
 
@@ -377,304 +368,309 @@ def rollStun():
         if(rollD10()>body-floor((damageTaken-1)/5)-3):
             print("-=- UNCON -=-")
             uncon=True
-        
 
-##################### INIT ########################################################################
 
-if(WINDOWS):
-    os.system("title Unnamed DT")
+def main():
+    global sp,body,btm,damageTaken,  stun,uncon,dead,wildcard#<-can be bundled
+    global bulletType,shotCount,barrier,exposed
+    global autostun,hide
 
-while(True):
-    clr()
-    temp=input("If loading from file, enter its name\nIf fresh instance, leave blank\n\n: ")
-    if(temp!=""):
-        if(loadState(temp)):
-            break
-    else:
+    if(WINDOWS):
+        os.system("title Unnamed DT")
+
+    while(True):### INIT ###
         clr()
-        setBody()
-        print()
-        initSP()
-        break
-
-####################### MAIN LOOP ############################################################################
-
-while(True):
-    clr()
-    if(wildcard or autostun or hide):
-        if(wildcard):
-            print("-=- *WILDCARD* -=-  ",end="")
-        if(autostun):
-            print("@--Autostun ON--@  ",end="")
-        if(hide):
-            print("// HIDDEN //  ",end="")
-        print("\n")
-    
-    renderDamage()
-    if(floor((damageTaken-1)/5)-3>0):
-            print(f"@ ALL ROLLS -{floor((damageTaken-1)/5)-3} @")
-    if(stun or uncon or dead):
-        print("\nStatus: ",end="")
-        if(stun):
-            print("*STUN* ",end="")
-        if(uncon):
-            print("-=-UNCON-=- ",end="")
-        if(dead):
-            print("###DEAD### ",end="")
-        print()
-        
-    print()
-    printSP()
-    print(f"\n(BAR) Barrier SP: {barrier}")
-    if(barrier>0):
-        if(len(exposed)>0):
-            print(f"(EXP) Exposed areas: {exposedString()}")
+        temp=input("If loading from file, enter its name\nIf fresh instance, leave blank\n\n: ")
+        if(temp!=""):
+            if(loadState(temp)):
+                break
         else:
-            print("(EXP) Exposed")
-    print(f"""
+            clr()
+            setBody()
+            print()
+            initSP()
+            break
+
+    undoSP=sp
+    undoDMG=damageTaken
+    undoBar=barrier
+    undoShot=shotCount
+    undoStun=stun
+    undoUncon=uncon
+    undoDead=dead
+
+    while(True):### MAIN LOOP ###
+        clr()
+        if(wildcard or autostun or hide):
+            if(wildcard):
+                print("-=- *WILDCARD* -=-  ",end="")
+            if(autostun):
+                print("@--Autostun ON--@  ",end="")
+            if(hide):
+                print("// HIDDEN //  ",end="")
+            print("\n")
+
+        renderDamage()
+        if(floor((damageTaken-1)/5)-3>0):
+                print(f"@ ALL ROLLS -{floor((damageTaken-1)/5)-3} @")
+        if(stun or uncon or dead):
+            print("\nStatus: ",end="")
+            if(stun):
+                print("*STUN* ",end="")
+            if(uncon):
+                print("-=-UNCON-=- ",end="")
+            if(dead):
+                print("###DEAD### ",end="")
+            print()
+
+        print()
+        printSP()
+        printBarrier()
+        print(f"""
 (AM) Ammo: {bulletType.upper()}
 (C) Called Shot
 (R) Random Location
 
    (AUTO) (WILD) (HIDE)
 (SAVE) (LOAD) (NEW) (UNDO)
-    """)
-    temp=input("Input Option: ").lower()
-    clr()
+        """)
+        temp=input("Input Option: ").lower()
+        clr()
 
-    if(temp=="undo"):
-        sp=list(undoSP)
-        damageTaken=undoDMG
-        barrier=undoBar
-        shotCount=undoShot
-        stun=undoStun
-        uncon=undoUncon
-        dead=undoDead
-        continue
-    else:
-        undoSP=list(sp)
-        undoDMG=damageTaken
-        undoBar=barrier
-        undoShot=shotCount
-        undoStun=stun
-        undoUncon=uncon
-        undoDead=dead
+        if(temp=="undo"):
+            sp=list(undoSP)
+            damageTaken=undoDMG
+            barrier=undoBar
+            shotCount=undoShot
+            stun=undoStun
+            uncon=undoUncon
+            dead=undoDead
+            continue
+        else:
+            undoSP=list(sp)
+            undoDMG=damageTaken
+            undoBar=barrier
+            undoShot=shotCount
+            undoStun=stun
+            undoUncon=uncon
+            undoDead=dead
 
-    if(temp=="stun"):
-        stun=not stun
-        continue
+        if(temp=="stun"):
+            stun=not stun
+            continue
 
-    if(temp=="uncon"):
-        uncon=not uncon
-        continue
+        if(temp=="uncon"):
+            uncon=not uncon
+            continue
 
-    if(temp=="dead"):
-        dead=not dead
-        continue
+        if(temp=="dead"):
+            dead=not dead
+            continue
 
-    if(temp=="hide"):
-        hide=not hide
-        continue
+        if(temp=="hide"):
+            hide=not hide
+            continue
 
-    if(temp=="status"):
-        input("Try typing the name of the status!\n(STUN) (UNCON) (DEAD)\nEnter to continue...")
-        continue
+        if(temp=="status"):
+            input("Try typing the name of the status!\n(STUN) (UNCON) (DEAD)\nEnter to continue...")
+            continue
 
-    if(temp=="exp"):
-        while(True):
-            clr()
-            print("-=- (X) to EXIT -=-")
-            print("(ALL) - (Head)|(Torso)|(Larm)|(Rarm)|(Lleg)|(Rleg)")
-            print(f"Currently Exposed: {exposedString()}")
-            userIn=input("\nEnter location to toggle: ").lower()
-            if(userIn=="x" or userIn==""):
-                break
-            if(userIn=="all"):
-                if(len(exposed)==0):
-                    exposed={0,1,2,3,4,5}
-                else:
-                    exposed=set()
-            elif(userIn=="head"):
-                if(0 in exposed):
-                    exposed.remove(0)
-                else:
-                    exposed.add(0)
-            elif(userIn=="torso"):
-                if(1 in exposed):
-                    exposed.remove(1)
-                else:
-                    exposed.add(1)
-            elif(userIn=="larm"):
-                if(2 in exposed):
-                    exposed.remove(2)
-                else:
-                    exposed.add(2)
-            elif(userIn=="rarm"):
-                if(3 in exposed):
-                    exposed.remove(3)
-                else:
-                    exposed.add(3)
-            elif(userIn=="lleg"):
-                if(4 in exposed):
-                    exposed.remove(4)
-                else:
-                    exposed.add(4)
-            elif(userIn=="rleg"):
-                if(5 in exposed):
-                    exposed.remove(5)
-                else:
-                    exposed.add(5)
-
-        continue
-
-    if(temp=="name"):
-        if(WINDOWS):
-            os.system("title "+input("Enter new window name: ").upper())
-        else: #linux
-            os.system("set-title "+input("Enter new window name: ").upper())
-        continue
-
-    if(temp=="save"):
-        saveState()
-        continue
-
-    if(temp=="load"):
-        temp=input("Load file name (no '.txt'): ")
-        loadState(temp)
-        continue
-
-    if(temp=="sp"):
-        initSP()
-        continue
-
-    if(temp=="dmg"):
-        damageTaken=int(input(f"Set damage taken (old: {damageTaken}): "))
-        continue
-
-    if(temp=="btm" or temp=="body"):
-        setBody()
-        continue
-
-    if(temp=="am"):
-        setBulletType()
-        continue
-
-    if(temp=="sht"):
-        shotCount=int(input(f"Set shot count (old: {shotCount}): "))
-        continue
-
-    if(temp=="bar"):
-        barrier=int(input(f"Set barrier (old: {barrier}): "))
-        continue
-
-    if(temp=="new"):
-        reset()
-        setBody()
-        print()
-        initSP()
-        continue
-
-    if(temp=="auto" or temp=="autostun"):
-        autostun=not autostun
-        continue
-
-    if(temp=="wild" or temp=="wildcard"):
-        wildcard=not wildcard
-        continue
-
-    if(temp=="head"):
-        sp[0] = input("Set head SP: ")
-        continue
-    if(temp=="torso"):
-        sp[1] = input("Set torso SP: ")
-        continue
-    if(temp=="larm"):
-        sp[2] = input("Set left arm SP: ")
-        continue
-    if(temp=="rarm"):
-        sp[3] = input("Set right arm SP: ")
-        continue
-    if(temp=="lleg"):
-        sp[4] = input("Set left leg SP: ")
-        continue
-    if(temp=="rleg"):
-        sp[5] = input("Set right leg SP: ")
-        continue
-
-    if(temp=="c"):
-        if(bulletType=="normal"):
-            setBulletType()
-        while(True):
-            clr()
-            print(f"Current ammo type: {bulletType.upper()}")
-            print("-=- Press (x) to EXIT -=-")
-            location=input("Location (Head,Torso,Larm,Rarm,Lleg,Rleg,Other): ").lower()
-            if(location=="x"):
-                break
-            if(location=="other"):
-                temp=input("Location SP: ")
-                sp[6]=0
-                if(temp.isnumeric() and not temp==""):
-                    sp[6]=int(temp)
-            damage=input("Damage: ")
-            if(damage=="x"):
-                break
-            if(damage==""):
-                print()
-                continue
-
-            if(location=="other"):
-                locSP=sp[6]
-                output=dealDamage(processDamage(damage),6)
-                damageTaken+=output
-                if(input(f"Dealt {output} damage to {locSP} SP, new SP is {sp[6]}, ENTER to Continue\n").lower()=="x"):
+        if(temp=="exp"):
+            while(True):
+                clr()
+                print("-=- (X) to EXIT -=-")
+                print("(ALL) - (Head)|(Torso)|(Larm)|(Rarm)|(Lleg)|(Rleg)")
+                print(f"Currently Exposed: {exposedString()}")
+                userIn=input("\nEnter location to toggle: ").lower()
+                if(userIn=="x" or userIn==""):
                     break
-                continue
+                if(userIn=="all"):
+                    if(len(exposed)==0):
+                        exposed={0,1,2,3,4,5}
+                    else:
+                        exposed=set()
+                elif(userIn=="head"):
+                    if(0 in exposed):
+                        exposed.remove(0)
+                    else:
+                        exposed.add(0)
+                elif(userIn=="torso"):
+                    if(1 in exposed):
+                        exposed.remove(1)
+                    else:
+                        exposed.add(1)
+                elif(userIn=="larm"):
+                    if(2 in exposed):
+                        exposed.remove(2)
+                    else:
+                        exposed.add(2)
+                elif(userIn=="rarm"):
+                    if(3 in exposed):
+                        exposed.remove(3)
+                    else:
+                        exposed.add(3)
+                elif(userIn=="lleg"):
+                    if(4 in exposed):
+                        exposed.remove(4)
+                    else:
+                        exposed.add(4)
+                elif(userIn=="rleg"):
+                    if(5 in exposed):
+                        exposed.remove(5)
+                    else:
+                        exposed.add(5)
+            continue
 
-            i=0
-            if(location=="head"):
-                i=0
-            elif(location=="torso"):
-                i=1
-            elif(location=="larm"):
-                i=2
-            elif(location=="rarm"):
-                i=3
-            elif(location=="lleg"):
-                i=4
-            elif(location=="rleg"):
-                i=5
+        if(temp=="name"):
+            if(WINDOWS):
+                os.system("title "+input("Enter new window name: ").upper())
+            else: #linux
+                os.system("set-title "+input("Enter new window name: ").upper())
+            continue
 
-            output=dealDamage(processDamage(damage),i)
-            damageTaken+=output
-            if(input(f"Dealt {output} damage to {LOCATIONS[i]}, ENTER to Continue\n").lower()=="x"):
-                break
-        continue
+        if(temp=="save"):
+            saveState()
+            continue
 
-    if(temp=="r"):
-        iterations=0
-        if(bulletType=="normal"):
+        if(temp=="load"):
+            temp=input("Load file name (no '.txt'): ")
+            loadState(temp)
+            continue
+
+        if(temp=="sp"):
+            initSP()
+            continue
+
+        if(temp=="dmg"):
+            damageTaken=int(input(f"Set damage taken (old: {damageTaken}): "))
+            continue
+
+        if(temp=="btm" or temp=="body"):
+            setBody()
+            continue
+
+        if(temp=="am"):
             setBulletType()
-        print(f"Current ammo type: {bulletType.upper()}")
-        print("-=- Press (x) to EXIT -=-\n")
-        while(True):
-            i=choice(RANDLOCATION)
-            if(iterations<=0):
-                print(f"Damage to {LOCATIONS[i]}")
-                damage=input("Damage: ")
+            continue
 
-                if(damage.lower()=="x"):
+        if(temp=="sht"):
+            shotCount=int(input(f"Set shot count (old: {shotCount}): "))
+            continue
+
+        if(temp=="bar"):
+            barrier=int(input(f"Set barrier (old: {barrier}): "))
+            continue
+
+        if(temp=="new"):
+            reset()
+            setBody()
+            print()
+            initSP()
+            continue
+
+        if(temp=="auto" or temp=="autostun"):
+            autostun=not autostun
+            continue
+
+        if(temp=="wild" or temp=="wildcard"):
+            wildcard=not wildcard
+            continue
+
+        if(temp=="head"):
+            sp[0] = input("Set head SP: ")
+            continue
+        if(temp=="torso"):
+            sp[1] = input("Set torso SP: ")
+            continue
+        if(temp=="larm"):
+            sp[2] = input("Set left arm SP: ")
+            continue
+        if(temp=="rarm"):
+            sp[3] = input("Set right arm SP: ")
+            continue
+        if(temp=="lleg"):
+            sp[4] = input("Set left leg SP: ")
+            continue
+        if(temp=="rleg"):
+            sp[5] = input("Set right leg SP: ")
+            continue
+
+        if(temp=="c"):
+            while(True):
+                clr()
+                print(f"Current ammo type: {bulletType.upper()}")
+                print("-=- Press (x) to EXIT -=-")
+                location=input("Location (Head,Torso,Larm,Rarm,Lleg,Rleg,Other): ").lower()
+                if(location=="x"):
+                    break
+
+                if(location=="other"):
+                    temp=input("Location SP: ")
+                    sp[6]=0
+                    if(temp.isnumeric() and not temp==""):
+                        sp[6]=int(temp)
+
+                damage=input("Damage: ")
+                if(damage=="x"):
                     break
                 if(damage==""):
                     print()
                     continue
-                if(damage.__contains__("*")):
-                    damage,iterations=damage.split("*")
-                    iterations=int(iterations)-1
 
-            else:#iterating
-                iterations-=1
-            
-            output=dealDamage(processDamage(damage),i)
-            damageTaken+=output
-            print(f"Dealt {output} damage to {LOCATIONS[i]}\n")
+                if(location=="other"):
+                    locSP=sp[6]
+                    output=dealDamage(processDamage(damage),6)
+                    damageTaken+=output
+                    if(input(f"Dealt {output} damage to {locSP} SP, new SP is {sp[6]}, ENTER to Continue\n").lower()=="x"):
+                        break
+                    continue
+
+                i=0
+                if(location=="head"):
+                    i=0
+                elif(location=="torso"):
+                    i=1
+                elif(location=="larm"):
+                    i=2
+                elif(location=="rarm"):
+                    i=3
+                elif(location=="lleg"):
+                    i=4
+                elif(location=="rleg"):
+                    i=5
+
+                output=dealDamage(processDamage(damage),i)
+                damageTaken+=output
+                if(input(f"Dealt {output} damage to {LOCATIONS[i]}, ENTER to Continue\n").lower()=="x"):
+                    break
+
+            continue
+
+        if(temp=="r"):
+            iterations=0
+            print(f"Current ammo type: {bulletType.upper()}")
+            print("-=- Press (x) to EXIT -=-\n")
+            while(True):
+                i=choice(RANDLOCATION)
+                if(iterations<=0):
+                    print(f"Damage to {LOCATIONS[i]}")
+                    damage=input("Damage: ")
+
+                    if(damage.lower()=="x"):
+                        break
+                    if(damage==""):
+                        print()
+                        continue
+                    if(damage.__contains__("*")):
+                        damage,iterations=damage.split("*")
+                        iterations=int(iterations)-1
+
+                else:#iterating
+                    iterations-=1
+
+                output=dealDamage(processDamage(damage),i)
+                damageTaken+=output
+                print(f"Dealt {output} damage to {LOCATIONS[i]}\n")
+
+if __name__=='__main__':
+    main()
