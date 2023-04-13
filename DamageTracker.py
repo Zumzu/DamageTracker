@@ -116,12 +116,7 @@ def dealDamage(unit,damage,index,silent=False):
     #SP
     damage-=targetSP
     if(damage+targetSP>=floor(targetSP/2) and sp[index]>0):
-        if(not silent):
-            print("-",end="")
         sp[index]-=1
-    else:
-        if(not silent):
-            print(" ",end="")
 
     #end sp reduction and degredation
     
@@ -660,10 +655,12 @@ def main():#### MAIN ####
             continue
 
         if(temp=="c"):
+            count=0
             clr()
             print(f"Current ammo type: {bulletType.upper()}")
             print("-=- Press (x) to EXIT -=-")
             while(True):
+                count+=1
                 location=input("Location (Head,Torso,Larm,Rarm,Lleg,Rleg,Other): ").lower()
                 if(location=="x"):
                     break
@@ -685,7 +682,7 @@ def main():#### MAIN ####
                     locSP=unit.sp[6]
                     output=dealDamage(unit,processDamage(damage),6)
                     unit.damageTaken+=output
-                    if(input(f"Dealt {output} damage to {locSP} SP, new SP is {unit.sp[6]}, ENTER to Continue\n").lower()=="x"):
+                    if(input(f"{count}: Dealt {output} damage to {locSP} SP, new SP is {unit.sp[6]}, ENTER to Continue\n").lower()=="x"):
                         break
                     continue
 
@@ -705,15 +702,17 @@ def main():#### MAIN ####
 
                 output=dealDamage(unit,processDamage(damage),i)
                 unit.damageTaken+=output
-                print(f"Dealt {output} damage to {LOCATIONS[i]}\n")
+                print(f"{count}: Dealt {output} damage to {LOCATIONS[i]}\n")
 
             continue
 
         if(temp=="r"):
             iterations=0
+            count=0
             print(f"Current ammo type: {bulletType.upper()}")
             print("-=- Press (x) to EXIT -=-\n")
             while(True):
+                count+=1
                 i=choice(RANDLOCATION)
                 if(iterations<=0):
                     print(f"Damage to {LOCATIONS[i]}")
@@ -733,7 +732,7 @@ def main():#### MAIN ####
 
                 output=dealDamage(unit,processDamage(damage),i)
                 unit.damageTaken+=output
-                print(f"Dealt {output} damage to {LOCATIONS[i]}\n")
+                print(f"{count}: Dealt {output} damage to {LOCATIONS[i]}\n")
 
 if __name__=='__main__':
     main()
