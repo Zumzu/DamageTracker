@@ -1,0 +1,100 @@
+Format: 
+Tier,Legality,Melee,Name,WA,Damage,shotcount,ROF,Reliability,Range
+(int),(bool),(bool),(str),(str),(str),(str),(str),(str),(str)
+$
+Dai Lung Cybermag 15,-1,1D6+1,10,2,UR,25m
+BudgetArms C-13,-1,1D6,8,2,ST,25m
+Federated Arms Impact,1,1D6,10,2,VR,25m
+Federated Arms X-22,0,1D6+1,10,2,ST,25m
+Sternmeyer Type 18 Frenzy,-2,1D6,13,20,UR,25m
+Federated Arms X-38,1,2D6,6,1,ST,25m
+Arasaka Ghost,1,1D6,15,2,VR,25m
+Malorian Arms Silver Gun,0,1d6/2*,7,2,UR,25m
+Towa Type 12 Police Pistol,3,1D6+1,6,2,VR,25m
+
+Stundart Pistol,-1,3D10 Stun damage,2,2,VR,30m
+Millitech Arms Avenger,0,2D6+1,10,2,VR,36m
+Dai Lung Streetmaster,0,2D6+3,12,2,UR,36m
+Millitech Classic Alt-Fire Pistol,0,2D6+1,12,2/3,ST,30m
+Arasaka WSA  Autopistol,0,2D6+3,15,2,ST,36m
+Federated Arms X-9mm,1,2D6+1,16,2,VR,42m
+Colt Enforcement 10 Sidearm,1,2D6+3,14,2,VR,25m
+Nomad .38 Magnum Revolver,0,3D6+1,6,2,VR,36m
+Colt Alpha-Omega,2,2D6+3,10,2,VR,36m
+Glock 30 Machine Pistol,2,2D6+3,20/30,1/3,VR,36m
+Towa Type 13 Police Pistol,3,2D6+1,20,3/20,VR,36m
+
+Heavy Handguns
+Dai Lung Magnum,1,3D6+1,10,2,UR,36m
+BudgetArms Auto 3,-1,3D6,8,2,ST,50m
+Sternmeyer Type 35,0,3D6,8,2,VR,50m
+Nova Model 38-2 Citygun,1,3D6,7,3,VR,36m
+Millitech Crusher Shotgun Pistol,-1,3D6/1D6+2,6,2,ST,12m
+Nova Model 757 Cityhunter,2,3D6,18,2,ST,50m
+S & W Bi-Power Handcannon,0,4D6,6,2,UR,50m
+
+Very Heavy Handguns
+Nomad .45 Magnum Revolver,0,4D6,6,1,VR,64m
+Armalite 44,0,4D6+1,8,1,ST,64m
+Colt AMT Model 2000,0,4D6+1,8,1,VR,64m
+Enfield Spitfire 12mm Battle Pistol,1,4D6+1,12,1,VR,64m
+FA 454 DA "Super Chief",0,4D6+3,5,1,VR,64m
+Malorian Arms 3516,1,6D6,6,1,VR,64m
+
+Light Submachineguns
+Federated Arms Tech-Assault,0,1D6,30,10/30,UR,50m
+Federated Arms Tech-Assault mk II,1,1D6+1,40,25,ST,55m
+Ingram MAC 12,1,1D6+1,50,30,ST,50m
+Arasaka PMS advanced SMG,1S,1D6+2,40,20,ST,50m
+Millitech Mini-Gat Machine Carbine,0,1D6,120,40,ST,50m
+
+Medium Submachineguns
+Zipper-Gun,-2,varies,30,3/30,UR,50m
+Uzi Miniauto 9,-1,2D6+1,30,40,VR,42m
+Millitech-10 SMG,1,2D6+3,30,20,ST,64m
+IMI "Gamdaii",1,2D6+3,30x2,30,VR,64m
+H&K MPK-11,0,2D6+3,35,3/20,ST,64m
+Millitech Viper SMG,0,2D6+3,40,30,VR,64m
+Beretta M-24 Advanced SMG,2S,2D6+1,50,25,VR,64m
+
+Heavy Submachineguns
+CCMMC Tuzi-7,-2,3D6,30,15,ST,50m
+Sternmeyer SMG 21,-1,3D6,30,15,VR,64m
+Ingram MAC 14,-2,4D6+1,20,10,ST,64m
+H&K MPK-12,1,4D6+1,30,20,ST,64m
+Chadran Arms City Reaper,1,3D6,40,20,VR,64m
+H&K MPK-2020 SMG,3S,4D6+1,60,30,ST,64m
+
+Assault Rifles
+Darra-Polytechnic M-9 AR,0,4D6+2,40,35,ST,72m
+AKR-20 Medium Assault,0,5D6+1,30,30,ST,80m
+Millitech Ronin Light Assault,1,5D6+1,35,30,VR,80m
+Federated Arms "Mox" Bullpup Rifle,2,5D6+1,30,20,ST,80m
+Colt M-18 Assault Weapon,1,5D6+1,35,3/30,VR,80m
+Kalinshikov A-80 Heavy Rifle,-1,6D6+1,35,25,ST,80m
+FN-RAL Heavy Assault Rifle,-1,6D6+1,30,30,VR,80m
+Millitech Vandal Medium Assault,1,6D6+1,25,20,ST,80m
+Towa Manuufacting Type-18 Phantom,2,5D6+1,30,20,ST,72m
+Federated Arms Light Assault 15,0,5D6+3,30,3/25,VR,80m
+
+Sniper Rifles
+Arasaka Marshal Scout Rifle,1,5D6+1,5,2,ST,150m
+Bowling Bolt Action Rifle,1,6D6+1,6,1,ST,180m
+
+H&K HK77SD3,1,3D6+3,154,3/30,VR,64m
+Malorian Arms Assault Cannon,3,7D10+4,12,2,VR,80m
+Millitech "Guardian" Marksman SDR,1,6D6+1,12,2,VR,100m
+Nomad .357 Magnum Lever-Action Carbine,2,2D6+3,9,1,VR,64m
+Nomad.44 Magnum Lever-Action Rifle,1,4D6+3,8,1,VR,80m
+
+Shotguns
+Mustang Arms Close-Control 20,-1,3D6,15,2,ST,18m
+Einfeld-Ubichi LastChance,0,4D6+2(12),1,1,UR,12m
+Nomad Shorty Shotgun,0,4D6+2(12),2,2,UR,12m
+American Arms Double Barrel 12,-1,4D6+2(12),2,2,UR,25m
+Arasaka Rapid Assault 12,-1,4D6+2(12),20,10,ST,25m
+Chadran Arms City Reaper,-1,4D6+2(12),10,3,ST,25m
+Tsunami Arms "Ragnarok" CAW,0,4D6+2(12),40,2/20,ST,25m
+Millitech Pump Shotgun 10,-,5D6+3(10),6,1,VR,25m
+Sternmeyer Stakeout 10,-2,5D6+3(10),10,2,ST,25m
+Luigi Franchi "King Buck" Multi-Magnum,-1,6D6/5D6/4D6(10),4,2/4,VR,25m

@@ -195,7 +195,7 @@ bulletType="normal"
 shotCount=0
 barrier=0
 exposed=set()
-autostun=False
+autostun=True
 hide=False
 
 #status=set() < future plan for status flags (dynamic set)
@@ -371,13 +371,13 @@ def saveState(unit):
     name=input("Save name: ")
     data=f"{hide};{autostun};{unit.sp[0]},{unit.sp[1]},{unit.sp[2]},{unit.sp[3]},{unit.sp[4]},{unit.sp[5]};{unit.body};{unit.damageTaken};{unit.wildcard}"
 
-    with open(f"{name}.txt", "w") as f:
+    with open(f"./DT/{name}.txt","w") as f:
         f.write(data)
 
 def loadState(name,unit):
     global autostun,hide
     try:
-        with open(f"{name}.txt", "r") as f:
+        with open(f"./DT/{name}.txt","r") as f:
             data=f.read().split(";")
 
             reset(unit)
