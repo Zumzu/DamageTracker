@@ -16,15 +16,16 @@ class Unit:
     uncon=False
     dead=False
     
-    def __init__(self):
-        initBody(self)
-        initSP(self)
-
-    def __init__(self,sp,body,wildcard):
-        self.sp=sp
-        self.body=body
-        self.btm=bodyToBTM(self.body)
-        self.wildcard=wildcard
+    def __init__(self,sp=[-1],body=6,wildcard=False):
+        self.btm=2
+        if(sp[0]==-1):
+            initBody(self)
+            initSP(self)
+        else:
+            self.sp=sp
+            self.body=body
+            self.btm=bodyToBTM(self.body)
+            self.wildcard=wildcard
 
     def stunMod(self):
         return floor((self.damageTaken-1)/5)
@@ -63,8 +64,8 @@ class Unit:
 
 ############################ ^^^ CLASS ^^^  +imports lol
 
-def dealDamage(unit,damage,index,bulletType,silent=False):
-    global barrier,shotCount,dead,autostun
+def dealDamage(unit,damage,index,silent=False):
+    global barrier,shotCount,dead,autostun,bulletType
 
     sp=unit.sp
     btm=unit.btm
@@ -72,53 +73,58 @@ def dealDamage(unit,damage,index,bulletType,silent=False):
     dead=unit.dead
     wildcard=unit.wildcard
 
-    if(not index in exposed):
-        if(bulletType=="f"):
-            if(damage>=barrier/2 and barrier>0):
-                barrier-=1
+    targetBar=int(barrier)
+    targetSP=int(sp[index])
 
-        elif(bulletType=="b"):
-            damage-=floor(barrier/2)
-            if(damage+floor(barrier/2)>=floor(barrier/4) and barrier>0):
-                barrier-=1
-
-        else:#bullet type not full AP
-            damage-=barrier
-            if(damage+barrier>=barrier/2 and barrier>0):
-                barrier-=1
-    #end exposed
-        
     if(bulletType=="f"):
-        if(damage>=sp[index]/2 and sp[index]>0):
-            if(not silent):
-                print("-",end="")
-            sp[index]-=1
-        else:
-            if(not silent):
-                print(" ",end="")
+        targetBar=0
+        targetSP=0
 
-    elif(bulletType=="k" or bulletType=="t" or bulletType=="b"):
-        damage-=floor(sp[index]/2)
-        if(damage+floor(sp[index]/2)>=floor(sp[index]/4) and sp[index]>0):
-            if(not silent):
-                print("-",end="")
-            sp[index]-=1
-        else:
-            if(not silent):
-                print(" ",end="")
+    elif(bulletType=="b" or bulletType=="k" or bulletType=="t"):
+        targetBar*=0.5
+        targetSP*=0.5
 
-    else:#normal
-        damage-=sp[index]
-        if(damage+sp[index]>=sp[index]/2 and sp[index]>0):
-            if(not silent):
-                print("-",end="")
-            sp[index]-=1
-        else:
-            if(not silent):
-                print(" ",end="")
+    elif(bulletType=="hm"):
+        targetBar*=2/3
+        targetSP*=2/3
+
+    elif(bulletType=="sm"):
+        targetBar*=1/3
+        targetSP*=1/3
+    
+    elif(bulletType=="hp"):
+        targetBar*=1.5
+        targetSP*=1.5
+
+    elif(bulletType=="s"):#SPECIAL
+        targetBar*=0.75
+        targetSP*=0.75
+
+    if(index in exposed):
+        targetBar=0
+
+    targetBar=floor(targetBar)
+    targetSP=floor(targetSP)
+
+    ##Exposed
+    damage-=targetBar
+    if(damage+targetBar>=floor(targetBar/2) and barrier>0):
+        barrier-=1
+
+    #SP
+    damage-=targetSP
+    if(damage+targetSP>=floor(targetSP/2) and sp[index]>0):
+        if(not silent):
+            print("-",end="")
+        sp[index]-=1
+    else:
+        if(not silent):
+            print(" ",end="")
 
     #end sp reduction and degredation
-        
+    
+    if(bulletType=="hp" or bulletType=="s"):
+        damage=floor(damage*1.5)
         
     if(index==0):#head
         if(not wildcard):#not wildcard
@@ -203,9 +209,14 @@ hide=False
 def askBulletType():
     return(input("""Ammo Types:
 (N)/(Normal) - Standard Ammo
+(HP)   - SP treated as 1.5x, 1.5x damage through  <--Fact check thats correct
 (B:AP) - SP treated as half, half damage through
 (T:AP) - SP treated as half, full damage through (also called K:AP)
+(SM:AP)- SP treated as 1/3, full damage through
+(HM:AP)- SP treated as 2/3, full damage through
 (F:AP) - SP ignored (still degraded), full damage through
+
+(S) - Aidanos Special Sauce: SP treated as 0.75x, 1.5x damage through
     
 Ammo Type: """).split(":")[0].lower())
 
@@ -286,10 +297,11 @@ def initSP(unit):
                 sp[i]=userin[i]
 
     for i in sp:
-        if(not i.isnumeric()):
-            print("@@SP INIT FAILURE@@")
-            sp=[0]*7
-            return
+        if(i is str):
+            if(not i.isnumeric()):
+                print("@@SP INIT FAILURE@@")
+                sp=[0]*7
+                return
 
     sp=[int(i) for i in sp]
 
@@ -356,13 +368,14 @@ def saveState(unit):
         f.write(data)
 
 
-def reset():#temp
+def reset(unit):#temp
     global autostun,shotCount,bulletType,barrier,exposed
     exposed=set()
     bulletType="normal"
     autostun=False
     shotCount=0
     barrier=0
+    unit.reset()
 
 def loadState(name,unit):
     global autostun
@@ -370,7 +383,7 @@ def loadState(name,unit):
         with open(f"{name}.txt", "r") as f:
             data=f.read().split(";")
 
-            reset()
+            reset(unit)
             
             unit.wildcard=data[0]=='True'
             autostun=data[1]=='True'
@@ -423,7 +436,7 @@ def main():#### MAIN ####
     #To hide in main
     global bulletType,shotCount,barrier,exposed,autostun,hide
 
-    unit=Unit()
+    unit=Unit([0]*7,6,False)
 
     if(WINDOWS):
         os.system("title Unnamed DT")
@@ -432,27 +445,25 @@ def main():#### MAIN ####
         clr()
         temp=input("If loading from file, enter its name\nIf fresh instance, leave blank\n\n: ")
         if(temp!=""):
-            if(loadState(temp)):
+            if(loadState(temp,unit)):
                 break
         else:
             clr()
-            initBody(unit)
-            print()
-            initSP()
+            unit=Unit()
             break
 
-    undoSP=sp
-    undoDMG=damageTaken
+    undoSP=unit.sp
+    undoDMG=unit.damageTaken
     undoBar=barrier
     undoShot=shotCount
-    undoStun=stun
-    undoUncon=uncon
-    undoDead=dead
+    undoStun=unit.stun
+    undoUncon=unit.uncon
+    undoDead=unit.dead
 
     while(True):### MAIN LOOP ###
         clr()
-        if(wildcard or autostun or hide):
-            if(wildcard):
+        if(unit.wildcard or autostun or hide):
+            if(unit.wildcard):
                 print("-=- *WILDCARD* -=-  ",end="")
             if(autostun):
                 print("@--Autostun ON--@  ",end="")
@@ -460,22 +471,22 @@ def main():#### MAIN ####
                 print("// HIDDEN //  ",end="")
             print("\n")
 
-        renderDamage()
-        if(floor((damageTaken-1)/5)-3>0):
-                print(f"@ ALL ROLLS -{floor((damageTaken-1)/5)-3} @")
-        if(stun or uncon or dead):
+        renderDamage(unit)
+        if(unit.unconMod()>0):
+                print(f"@ ALL ROLLS -{unit.unconMod()} @")
+        if(unit.stun or unit.uncon or unit.dead):
             print("\nStatus: ",end="")
-            if(stun):
+            if(unit.stun):
                 print("*STUN* ",end="")
-            if(uncon):
+            if(unit.uncon):
                 print("-=-UNCON-=- ",end="")
-            if(dead):
+            if(unit.dead):
                 print("###DEAD### ",end="")
             print()
 
         print()
-        printSP()
-        printBarrier()
+        printSP(unit)
+        printBarrier(barrier,exposed)
         print(f"""
 (AM) Ammo: {bulletType.upper()}
 (C) Called Shot
@@ -488,33 +499,33 @@ def main():#### MAIN ####
         clr()
 
         if(temp=="undo"):
-            sp=list(undoSP)
-            damageTaken=undoDMG
+            unit.sp=list(undoSP)
+            unit.damageTaken=undoDMG
             barrier=undoBar
             shotCount=undoShot
-            stun=undoStun
-            uncon=undoUncon
-            dead=undoDead
+            unit.stun=undoStun
+            unit.uncon=undoUncon
+            unit.dead=undoDead
             continue
         else:
-            undoSP=list(sp)
-            undoDMG=damageTaken
+            undoSP=list(unit.sp)
+            undoDMG=unit.damageTaken
             undoBar=barrier
             undoShot=shotCount
-            undoStun=stun
-            undoUncon=uncon
-            undoDead=dead
+            undoStun=unit.stun
+            undoUncon=unit.uncon
+            undoDead=unit.dead
 
         if(temp=="stun"):
-            stun=not stun
+            unit.stun=not unit.stun
             continue
 
         if(temp=="uncon"):
-            uncon=not uncon
+            unit.uncon=not unit.uncon
             continue
 
         if(temp=="dead"):
-            dead=not dead
+            unit.dead=not unit.dead
             continue
 
         if(temp=="hide"):
@@ -579,20 +590,20 @@ def main():#### MAIN ####
             continue
 
         if(temp=="save"):
-            saveState()
+            saveState(unit)
             continue
 
         if(temp=="load"):
             temp=input("Load file name (no '.txt'): ")
-            loadState(temp)
+            loadState(temp,unit)
             continue
 
         if(temp=="sp"):
-            initSP()
+            initSP(unit)
             continue
 
         if(temp=="dmg"):
-            damageTaken=int(input(f"Set damage taken (old: {damageTaken}): "))
+            unit.damageTaken=int(input(f"Set damage taken (old: {unit.damageTaken}): "))
             continue
 
         if(temp=="btm" or temp=="body"):
@@ -620,26 +631,26 @@ def main():#### MAIN ####
             continue
 
         if(temp=="wild" or temp=="wildcard"):
-            wildcard=not wildcard
+            unit.wildcard=not unit.wildcard
             continue
 
         if(temp=="head"):
-            sp[0] = input("Set head SP: ")
+            unit.sp[0] = input("Set head SP: ")
             continue
         if(temp=="torso"):
-            sp[1] = input("Set torso SP: ")
+            unit.sp[1] = input("Set torso SP: ")
             continue
         if(temp=="larm"):
-            sp[2] = input("Set left arm SP: ")
+            unit.sp[2] = input("Set left arm SP: ")
             continue
         if(temp=="rarm"):
-            sp[3] = input("Set right arm SP: ")
+            unit.sp[3] = input("Set right arm SP: ")
             continue
         if(temp=="lleg"):
-            sp[4] = input("Set left leg SP: ")
+            unit.sp[4] = input("Set left leg SP: ")
             continue
         if(temp=="rleg"):
-            sp[5] = input("Set right leg SP: ")
+            unit.sp[5] = input("Set right leg SP: ")
             continue
 
         if(temp=="c"):
@@ -653,9 +664,9 @@ def main():#### MAIN ####
 
                 if(location=="other"):
                     temp=input("Location SP: ")
-                    sp[6]=0
+                    unit.sp[6]=0
                     if(temp.isnumeric() and not temp==""):
-                        sp[6]=int(temp)
+                        unit.sp[6]=int(temp)
 
                 damage=input("Damage: ")
                 if(damage=="x"):
@@ -665,10 +676,10 @@ def main():#### MAIN ####
                     continue
 
                 if(location=="other"):
-                    locSP=sp[6]
-                    output=dealDamage(processDamage(damage),6)
-                    damageTaken+=output
-                    if(input(f"Dealt {output} damage to {locSP} SP, new SP is {sp[6]}, ENTER to Continue\n").lower()=="x"):
+                    locSP=unit.sp[6]
+                    output=dealDamage(unit,processDamage(damage),6)
+                    unit.damageTaken+=output
+                    if(input(f"Dealt {output} damage to {locSP} SP, new SP is {unit.sp[6]}, ENTER to Continue\n").lower()=="x"):
                         break
                     continue
 
@@ -686,8 +697,8 @@ def main():#### MAIN ####
                 elif(location=="rleg"):
                     i=5
 
-                output=dealDamage(processDamage(damage),i)
-                damageTaken+=output
+                output=dealDamage(unit,processDamage(damage),i)
+                unit.damageTaken+=output
                 if(input(f"Dealt {output} damage to {LOCATIONS[i]}, ENTER to Continue\n").lower()=="x"):
                     break
 
@@ -715,8 +726,8 @@ def main():#### MAIN ####
                 else:#iterating
                     iterations-=1
 
-                output=dealDamage(processDamage(damage),i)
-                damageTaken+=output
+                output=dealDamage(unit,processDamage(damage),i)
+                unit.damageTaken+=output
                 print(f"Dealt {output} damage to {LOCATIONS[i]}\n")
 
 if __name__=='__main__':
