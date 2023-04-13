@@ -95,9 +95,12 @@ def dealDamage(unit,damage,index,silent=False):
         targetBar*=1.5
         targetSP*=1.5
 
-    elif(bulletType=="s"):#SPECIAL
+    elif(bulletType=="roland"):#SPECIAL
         targetBar*=0.75
         targetSP*=0.75
+
+    elif(bulletType=="leo"):
+        targetBar=max(0,targetBar-15)
 
     if(index in exposed):
         targetBar=0
@@ -122,7 +125,7 @@ def dealDamage(unit,damage,index,silent=False):
 
     #end sp reduction and degredation
     
-    if(bulletType=="hp" or bulletType=="s"):
+    if(bulletType=="hp" or bulletType=="roland"):
         damage=floor(damage*1.5)
         
     if(index==0):#head
@@ -215,7 +218,8 @@ def askBulletType():
 (HM:AP)- SP treated as 2/3, full damage through
 (F:AP) - SP ignored (still degraded), full damage through
 
-(S) - Aidanos Special Sauce: SP treated as 0.75x, 1.5x damage through
+(ROLAND) - Aidanos Special Sauce: SP treated as 0.75x, 1.5x damage through
+(LEO)    - Matts Special Sauce: BAR treated as 15 points less
     
 Ammo Type: """).split(":")[0].lower())
 
