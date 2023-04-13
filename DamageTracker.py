@@ -65,12 +65,11 @@ class Unit:
 ############################ ^^^ CLASS ^^^  +imports lol
 
 def dealDamage(unit,damage,index,silent=False):
-    global barrier,shotCount,dead,autostun,bulletType
+    global barrier,shotCount,autostun,bulletType
 
     sp=unit.sp
     btm=unit.btm
     damageTaken=unit.damageTaken
-    dead=unit.dead
     wildcard=unit.wildcard
 
     targetBar=int(barrier)
@@ -134,7 +133,7 @@ def dealDamage(unit,damage,index,silent=False):
             if (damage>=8):
                 if(not silent):
                     print(f"### INSTA-KILL, {damage} to head before BTM ###")
-                dead=True
+                unit.dead=True
 
             if(bulletType=="b"):
                 damage-=btm
@@ -151,7 +150,7 @@ def dealDamage(unit,damage,index,silent=False):
             if(damage>=8):
                 if(not silent):
                     print(f"### INSTA-KILL, {damage} to head *before double* ###")
-                dead=True
+                unit.dead=True
 
             damage*=2
 
@@ -359,15 +358,6 @@ def clr():
     else:
         os.system('clear')
 
-def saveState(unit):
-    clr()
-    name=input("Save name: ")
-    data=f"{unit.wildcard};{autostun};{unit.sp[0]},{unit.sp[1]},{unit.sp[2]},{unit.sp[3]},{unit.sp[4]},{unit.sp[5]};{unit.body}"
-
-    with open(f"{name}.txt", "w") as f:
-        f.write(data)
-
-
 def reset(unit):#temp
     global autostun,shotCount,bulletType,barrier,exposed
     exposed=set()
@@ -377,19 +367,25 @@ def reset(unit):#temp
     barrier=0
     unit.reset()
 
+def saveState(unit):
+    clr()
+    name=input("Save name: ")
+    data=f"{hide};{autostun};{unit.sp[0]},{unit.sp[1]},{unit.sp[2]},{unit.sp[3]},{unit.sp[4]},{unit.sp[5]};{unit.body};{unit.damageTaken};{unit.wildcard}"
+
+    with open(f"{name}.txt", "w") as f:
+        f.write(data)
+
 def loadState(name,unit):
-    global autostun
+    global autostun,hide
     try:
         with open(f"{name}.txt", "r") as f:
             data=f.read().split(";")
 
             reset(unit)
             
-            unit.wildcard=data[0]=='True'
+            hide=data[0]=='True'
             autostun=data[1]=='True'
 
-            unit.body=int(data[3])
-            unit.btm=bodyToBTM(unit.body)
 
             input_sp=[int(i) for i in data[2].split(",")]
             sp=[0]*7
@@ -397,8 +393,14 @@ def loadState(name,unit):
                 if(i==6):
                     break
                 sp[i]=input_sp[i]
-
             unit.sp=sp
+
+            unit.body=int(data[3])
+            unit.btm=bodyToBTM(unit.body)
+
+            unit.damageTaken=int(data[4])
+
+            unit.wildcard=data[5]=='True'
 
     except:
         return False
@@ -654,10 +656,10 @@ def main():#### MAIN ####
             continue
 
         if(temp=="c"):
+            clr()
+            print(f"Current ammo type: {bulletType.upper()}")
+            print("-=- Press (x) to EXIT -=-")
             while(True):
-                clr()
-                print(f"Current ammo type: {bulletType.upper()}")
-                print("-=- Press (x) to EXIT -=-")
                 location=input("Location (Head,Torso,Larm,Rarm,Lleg,Rleg,Other): ").lower()
                 if(location=="x"):
                     break
@@ -699,8 +701,7 @@ def main():#### MAIN ####
 
                 output=dealDamage(unit,processDamage(damage),i)
                 unit.damageTaken+=output
-                if(input(f"Dealt {output} damage to {LOCATIONS[i]}, ENTER to Continue\n").lower()=="x"):
-                    break
+                print(f"Dealt {output} damage to {LOCATIONS[i]}\n")
 
             continue
 

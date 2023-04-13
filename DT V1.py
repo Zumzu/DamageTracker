@@ -1,3 +1,5 @@
+#V1.0 Base level functionality - Stable
+
 from math import ceil,floor
 from random import choice,randint
 import os
