@@ -244,13 +244,13 @@ def printSP(unit):
 
 def printBarrier(barrier,exposed):
     if(barrier>0):
-        print(f"(BAR) Barrier [{barrier}] - ",end="")
+        print(f"Barrier [{barrier}] - ",end="")
         if(len(exposed)>0):
             print(f"(EXP) {exposedString(exposed,False)}")
         else:
             print("(EXP) Exposed")
     else:
-        print("(BAR) Barrier")
+        print("Barrier")
 
 def exposedString(exposed,big=True):
     output=""
@@ -348,7 +348,7 @@ def renderDamage(unit):
     output=f"(DMG): {unit.damageTaken}\n["
     for _ in range(unit.damageTaken):
         i+=1
-        output+="X"
+        output+="#"
         if(i%10==0):
             output+="]["
         elif(i%5==0):
@@ -494,8 +494,7 @@ def main():#### MAIN ####
             if(hide):
                 print("// HIDDEN //  ",end="")
             print()
-
-        print("‾"*53)
+            print("‾"*53)
 
         print(f"{unit.name}",end="")
         if(unit.stun or unit.uncon or unit.dead):
@@ -512,11 +511,11 @@ def main():#### MAIN ####
         print("   ",end="")
 
         if(not hide):
-            print(f"Body: {unit.body}   BTM: {unit.btm}",end="")
+            print(f"Body: {unit.body}",end="")
         else:      
             print(f"/// spooky ///",end="")
         print()
-
+        printBarrier(barrier,exposed)
         print()
 
         renderDamage(unit)
@@ -526,16 +525,13 @@ def main():#### MAIN ####
                 print(f"@ ALL ROLLS -{unit.unconMod()} @   ",end="")
             if(unit.stunMod()>0):
                 print(f"** Stun -{unit.stunMod()} **   ",end="")
-            print()
         print()
         
-
-        print(f"(AM) Ammo: {bulletType.upper()}")
-        printBarrier(barrier,exposed)
         print(f"""{"_"*53}
-   (AUTO) (WILD) (HIDE)    |  (CALL)   Called Shot   |
-(SAVE) (LOAD) (NEW) (UNDO) |  (RAND) Random Location |
-        """)
+   (AUTO) (WILD) (HIDE)    |  (CALL)   Called Shot
+(NAME) (BODY) (BTM)  (SP)  |  (RAND) Random Location
+(SAVE) (LOAD) (NEW) (UNDO) |  (AMMO) Ammo: {bulletType.upper()}
+""")
         temp=input("Input Option: ").lower()
         clr()
 
@@ -648,7 +644,7 @@ def main():#### MAIN ####
             initBody(unit)
             continue
 
-        if(temp=="am"):
+        if(temp=="am" or temp=="ammo"):
             bulletType=askBulletType()
             continue
 
@@ -656,7 +652,7 @@ def main():#### MAIN ####
             shotCount=int(input(f"Set shot count (old: {shotCount}): "))
             continue
 
-        if(temp=="bar"):
+        if(temp=="bar" or temp=="barrier"):
             barrier=int(input(f"Set barrier (old: {barrier}): "))
             continue
 
