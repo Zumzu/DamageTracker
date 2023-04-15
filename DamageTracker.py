@@ -4,6 +4,7 @@ import os
 from platform import system
  
 class Unit:
+    name="Unnamed"
     wildcard=False
     sp=[0]*7
     btm=0
@@ -368,7 +369,14 @@ def reset(unit):#temp
 
 def saveState(unit):
     clr()
-    name=input("Save name: ")
+    if(unit.name=="Unnamed"):
+        name=input("Save name: ")
+    else:
+        print(f"### ENTER to default to [{unit.name}] ###")
+        name=input(f"Save name: ")
+        if(name==""):
+            name=unit.name
+
     data=f"{hide};{autostun};{unit.sp[0]},{unit.sp[1]},{unit.sp[2]},{unit.sp[3]},{unit.sp[4]},{unit.sp[5]};{unit.body};{unit.damageTaken};{unit.wildcard}"
 
     with open(f"./DT/{name}.txt","w") as f:
@@ -400,6 +408,8 @@ def loadState(name,unit):
             unit.damageTaken=int(data[4])
 
             unit.wildcard=data[5]=='True'
+
+            unit.name=name
 
     except:
         return False
@@ -584,10 +594,11 @@ def main():#### MAIN ####
             continue
 
         if(temp=="name"):
+            unit.name=input("Enter new name: ")
             if(WINDOWS):
-                os.system("title "+input("Enter new window name: ").upper())
+                os.system("title "+unit.name)
             else: #linux
-                os.system("set-title "+input("Enter new window name: ").upper())
+                os.system("set-title "+unit.name)
             continue
 
         if(temp=="save"):

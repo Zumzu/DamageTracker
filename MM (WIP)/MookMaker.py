@@ -42,8 +42,12 @@ class Mook:
         '''
         print(output)
 
-def mookToUnit(mook):
+def mookToUnit(mook)->Unit:
     return Unit(mook.sp,mook.body,False)
+
+def generateWeapon(tier,legal,illegal,melee)->str:
+    with open(f"./MM/MMweapons.txt","r") as f:
+        data=f.read().split(":)")
 
 def main():
     userIn="f"
@@ -55,7 +59,7 @@ def main():
     print("Welcome to MookMaker!")
     print("-=-=-=-=-=-=-=-=-=-=-")
     print("For frame of reference: ")
-    print("0: Spammable | 1: Standard | 2: Strong | 3: Deadly | 4: Player level")
+    print("0: Weak | 1: Standard | 2: Strong | 3: Deadly | 4: Player level (Dont Use!)")
     print()
     while(not userIn.isnumeric()):
         userIn=input("Select a mook tier (0-4): ")
@@ -63,13 +67,10 @@ def main():
 
     userIn="f"
     while(not userIn.isnumeric()):
-        userIn=input("Select a weapon grade (0-4): ")
+        userIn=input("Select a equipment grade (0-4): ")
     weaponTier=int(userIn)
 
-    userIn="f"
-    while(not userIn.isnumeric()):
-        userIn=input("Select an armour grade (0-4): ")
-    armourTier=int(userIn)
+    armourTier=input("Select an equipment style (Police,Gang,etc): ")
 
     currentMook=Mook(statTier)
 
