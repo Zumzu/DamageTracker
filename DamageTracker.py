@@ -237,36 +237,49 @@ def bodyToBTM(body):
 
 def printSP(unit):
     if(not hide):
-        print(f"(SP) - [{unit.sp[0]}] [{unit.sp[1]}] [{unit.sp[2]}|{unit.sp[3]}] [{unit.sp[4]}|{unit.sp[5]}]  (BTM): {unit.btm}  (BODY): {unit.body}",end="")
+        print(f"[{unit.sp[0]}] [{unit.sp[1]}] [{unit.sp[2]}|{unit.sp[3]}] [{unit.sp[4]}|{unit.sp[5]}]",end="")
     else:
-        print(f"(SP) - [/] [/] [/|/] [/|/]  (BTM/BODY): ///",end="")
+        print(f"[/] [/] [/|/] [/|/]",end="")
 
-    if(unit.stunMod()>0):
-        print(f"  Stun: -{unit.stunMod()}",end="")
-    print()
 
 def printBarrier(barrier,exposed):
-    print(f"\n(BAR) Barrier SP: {barrier}")
     if(barrier>0):
+        print(f"(BAR) Barrier [{barrier}] - ",end="")
         if(len(exposed)>0):
-            print(f"(EXP) Exposed areas: {exposedString(exposed)}")
+            print(f"(EXP) {exposedString(exposed,False)}")
         else:
             print("(EXP) Exposed")
+    else:
+        print("(BAR) Barrier")
 
-def exposedString(exposed):
+def exposedString(exposed,big=True):
     output=""
-    if(0 in exposed):
-        output+="(Head) "
-    if(1 in exposed):
-        output+="(Torso) "
-    if(2 in exposed):
-        output+="(Larm) "
-    if(3 in exposed):
-        output+="(Rarm) "
-    if(4 in exposed):
-        output+="(Lleg) "
-    if(5 in exposed):
-        output+="(Rleg) "
+    if(big):
+        if(0 in exposed):
+            output+="(Head) "
+        if(1 in exposed):
+            output+="(Torso) "
+        if(2 in exposed):
+            output+="(Larm) "
+        if(3 in exposed):
+            output+="(Rarm) "
+        if(4 in exposed):
+            output+="(Lleg) "
+        if(5 in exposed):
+            output+="(Rleg) "
+    else:
+        if(0 in exposed):
+            output+="H "
+        if(1 in exposed):
+            output+="T "
+        if(2 in exposed):
+            output+="La "
+        if(3 in exposed):
+            output+="Ra "
+        if(4 in exposed):
+            output+="Ll "
+        if(5 in exposed):
+            output+="Rl "
     return output
 
 def initSP(unit):
@@ -332,25 +345,25 @@ def processDamage(input):
 
 def renderDamage(unit):
     i=0
-    print(f"(DMG): {unit.damageTaken} - [",end="")
+    output=f"(DMG): {unit.damageTaken}\n["
     for _ in range(unit.damageTaken):
         i+=1
-        print("#",end="")
+        output+="X"
         if(i%10==0):
-            print("][",end="")
+            output+="]["
         elif(i%5==0):
-            print("|",end="")
+            output+="|"
         if(i==50):
             unit.dead=True
             break
     for _ in range(50-unit.damageTaken):
         i+=1
-        print(".",end="")
+        output+="."
         if(i%10==0):
-            print("][",end="")
+            output+="]["
         elif(i%5==0):
-            print("|",end="")
-    print(f"\b (SHT): {shotCount}")
+            output+="|"
+    print(output[:-1])
 
 def clr():
     if WINDOWS:
@@ -475,36 +488,53 @@ def main():#### MAIN ####
         clr()
         if(unit.wildcard or autostun or hide):
             if(unit.wildcard):
-                print("-=- *WILDCARD* -=-  ",end="")
+                print("*WILDCARD*  ",end="")
             if(autostun):
-                print("@--Autostun ON--@  ",end="")
+                print("@-Autostun-@  ",end="")
             if(hide):
                 print("// HIDDEN //  ",end="")
-            print("\n")
-
-        renderDamage(unit)
-        if(unit.unconMod()>0):
-                print(f"@ ALL ROLLS -{unit.unconMod()} @")
-        if(unit.stun or unit.uncon or unit.dead):
-            print("\nStatus: ",end="")
-            if(unit.stun):
-                print("*STUN* ",end="")
-            if(unit.uncon):
-                print("-=-UNCON-=- ",end="")
-            if(unit.dead):
-                print("###DEAD### ",end="")
             print()
 
-        print()
-        printSP(unit)
-        printBarrier(barrier,exposed)
-        print(f"""
-(AM) Ammo: {bulletType.upper()}
-(C) Called Shot
-(R) Random Location
+        print("‾"*53)
 
-   (AUTO) (WILD) (HIDE)
-(SAVE) (LOAD) (NEW) (UNDO)
+        print(f"{unit.name}",end="")
+        if(unit.stun or unit.uncon or unit.dead):
+            print("  -  ",end="")
+            if(unit.stun):
+                print("*STUN*  ",end="")
+            if(unit.uncon):
+                print("-=-UNCON-=-  ",end="")
+            if(unit.dead):
+                print("###DEAD###  ",end="")
+        print()
+
+        printSP(unit)
+        print("   ",end="")
+
+        if(not hide):
+            print(f"Body: {unit.body}   BTM: {unit.btm}",end="")
+        else:      
+            print(f"/// spooky ///",end="")
+        print()
+
+        print()
+
+        renderDamage(unit)
+
+        if(unit.stunMod()>0):
+            if(unit.unconMod()>0):
+                print(f"@ ALL ROLLS -{unit.unconMod()} @   ",end="")
+            if(unit.stunMod()>0):
+                print(f"** Stun -{unit.stunMod()} **   ",end="")
+            print()
+        print()
+        
+
+        print(f"(AM) Ammo: {bulletType.upper()}")
+        printBarrier(barrier,exposed)
+        print(f"""{"_"*53}
+   (AUTO) (WILD) (HIDE)    |  (CALL)   Called Shot   |
+(SAVE) (LOAD) (NEW) (UNDO) |  (RAND) Random Location |
         """)
         temp=input("Input Option: ").lower()
         clr()
@@ -543,16 +573,12 @@ def main():#### MAIN ####
             hide=not hide
             continue
 
-        if(temp=="status"):
-            input("Try typing the name of the status!\n(STUN) (UNCON) (DEAD)\nEnter to continue...")
-            continue
-
         if(temp=="exp"):
             while(True):
                 clr()
-                print("-=- (X) to EXIT -=-")
-                print("(ALL) - (Head)|(Torso)|(Larm)|(Rarm)|(Lleg)|(Rleg)")
-                print(f"Currently Exposed: {exposedString()}")
+                print("-=- (X) to EXIT -=-\n")
+                print("(ALL) - (Head)|(Torso)|(Larm)|(Rarm)|(Lleg)|(Rleg)\n")
+                print(f"Currently Exposed: {exposedString(exposed)}")
                 userIn=input("\nEnter location to toggle: ").lower()
                 if(userIn=="x" or userIn==""):
                     break
@@ -665,7 +691,7 @@ def main():#### MAIN ####
             unit.sp[5] = input("Set right leg SP: ")
             continue
 
-        if(temp=="c"):
+        if(temp=="c" or temp=="call"):
             count=0
             clr()
             print(f"Current ammo type: {bulletType.upper()}")
@@ -717,7 +743,7 @@ def main():#### MAIN ####
 
             continue
 
-        if(temp=="r"):
+        if(temp=="r" or temp=="rand"):
             iterations=0
             count=0
             print(f"Current ammo type: {bulletType.upper()}")
