@@ -100,7 +100,7 @@ def dealDamage(unit,damage,index,silent=False):
         targetBar*=0.75
         targetSP*=0.75
 
-    elif(bulletType=="leo"):
+    elif(bulletType=="leo"):#SPECIAL
         targetBar=max(0,targetBar-15)
 
     if(index in exposed):
