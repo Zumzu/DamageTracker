@@ -222,10 +222,11 @@ def printSP():
     else:
         print(f"[/] [/] [/|/] [/|/]",end="")
     print("   ",end="")
-    if(not hide):
-        print(f"Body: {body}",end="")
-    else:      
-        print(f"/// spooky ///",end="")
+    if(sdp[1]==-1):
+        if(not hide):
+            print(f"Body: {body}",end="")
+        else:      
+            print(f"/// spooky ///",end="")
     print()
 
     for i in range(6):
@@ -493,10 +494,10 @@ def main():#### MAIN ####
             dead=True
 
         if(wildcard or autostun or hide):
-            #if(wildcard):
-            #    print("*WILDCARD*  ",end="")
-            #else:
-            print("-Standard-  ",end="")
+            if(wildcard):
+                print("*WILDCARD*  ",end="")
+            else:
+                print("-Standard-  ",end="")
 
             if(autostun):
                 print("@-Autostun-@  ",end="")
@@ -544,7 +545,7 @@ def main():#### MAIN ####
 
         if(temp=="undo"):
             sp=list(undoSP)
-            sdp=undoSDP
+            sdp=list(undoSDP)
             damageTaken=undoDMG
             barrier=undoBar
             shotCount=undoShot
@@ -554,7 +555,7 @@ def main():#### MAIN ####
             continue
         else:
             undoSP=list(sp)
-            undoSDP=sdp
+            undoSDP=list(sdp)
             undoDMG=damageTaken
             undoBar=barrier
             undoShot=shotCount
