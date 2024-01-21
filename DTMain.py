@@ -13,11 +13,11 @@ def dealDamage(damage,index,silent=False):
         targetBar=0
         targetSP=0
 
-    elif(bulletType=="pref" or bulletType=="p" or bulletType=="t"):
+    elif(bulletType=="pref" or bulletType=="p" or bulletType=="t" or bulletType=="hm"):
         targetBar*=0.5
         targetSP*=0.5
 
-    elif(bulletType=="quarter" or bulletType=="qu"):
+    elif(bulletType=="quarter" or bulletType=="qu" or bulletType=="sm"):
         targetBar*=0.25
         targetSP*=0.25
         
@@ -26,19 +26,10 @@ def dealDamage(damage,index,silent=False):
         targetSP*=0.5
         damage/=2
 
-    elif(bulletType=="hp"):
+    elif(bulletType=="holo" or bulletType=="hp" or bulletType=="h"):
         targetBar*=1.5
         targetSP*=1.5
         damage*=1.5
-
-    elif(bulletType=="hm"):
-        targetBar*=2/3
-        targetSP*=2/3
-
-    elif(bulletType=="sm"):
-        targetBar*=1/3
-        targetSP*=1/3
-    
     
 
     targetBar=floor(targetBar)
@@ -56,6 +47,12 @@ def dealDamage(damage,index,silent=False):
     damage-=targetSP
     if(damage+targetSP>=floor(targetSP/2) and sp[index]>0):
         sp[index]-=1
+
+    if(bulletType=="explo" or bulletType=="e"):
+        exploDamage=randint(1,3)
+        if(not silent):
+            print(f"+{exploDamage} sp damage from explosive ammo")  
+        sp[index]-=exploDamage
 
     #end sp reduction and degredation
         
@@ -97,7 +94,7 @@ def dealDamage(damage,index,silent=False):
                     print(f"# CYBERLIMB BROKEN #")  
 
     if(bulletType=="i" or bulletType=="incin"):
-        incinDamage=randint(1,int(6))
+        incinDamage=randint(1,6)
         if(not silent):
             print(f"+{incinDamage} damage from incindiary ammo")  
         
@@ -192,13 +189,12 @@ def askBulletType():
 (NORM) - Standard damage
 (PREF) - SP halved, full damage
 (QU)   - SP quartered, full damage
-                 
-(HP) - SP treated as 1.5x, 1.5x damage through
-(AP) - SP treated as half, half damage through
-(I)  - Additional 1D6 damage if damage does through
 
-(SM)- SP treated as 1/3, full damage through
-(HM)- SP treated as 2/3, full damage through
+(AP)   - SP treated as half, half damage through         
+(HOLO) - SP treated as 1.5x, 1.5x damage through
+(INCIN)- Additional 1D6 damage if damage does through
+(EXPLO)- Additional 1D3 sp damage
+
 (FULL) - SP ignored (still degraded), full damage through
 
 Ammo Type: """).split(":")[0].lower())
