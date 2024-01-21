@@ -24,12 +24,10 @@ def dealDamage(damage,index,silent=False):
     elif(bulletType=="ap" or bulletType=="b"):
         targetBar*=0.5
         targetSP*=0.5
-        damage/=2
 
     elif(bulletType=="holo" or bulletType=="hp" or bulletType=="h"):
         targetBar*=1.5
         targetSP*=1.5
-        damage*=1.5
     
 
     targetBar=floor(targetBar)
@@ -40,12 +38,12 @@ def dealDamage(damage,index,silent=False):
         targetBar=0
 
     damage-=targetBar
-    if(damage+targetBar>=floor(targetBar/2) and barrier>0):
+    if(damage+targetBar>=barrier/2 and barrier>0):
         barrier-=1
 
     #SP
     damage-=targetSP
-    if(damage+targetSP>=floor(targetSP/2) and sp[index]>0):
+    if(damage+targetSP>=sp[index]/2 and sp[index]>0):
         sp[index]-=1
 
     if(bulletType=="explo" or bulletType=="e"):
@@ -56,6 +54,12 @@ def dealDamage(damage,index,silent=False):
 
     #end sp reduction and degredation
         
+    if(bulletType=="ap" or bulletType=="b"):
+        damage*=0.5
+    elif(bulletType=="holo" or bulletType=="hp" or bulletType=="h"):
+        damage*=1.5
+    damage=floor(damage)
+
     if(damage<=0): # return early if no damage
         return 0
     
@@ -177,7 +181,9 @@ def rollStun(silent=False):
             uncon=True
 
 def bodyToBTM(body):
-    if(body>10):
+    if(body>14):
+        return 7
+    elif(body>10):
         return 5
     elif(body<6):
         return ceil(body/2-1)
@@ -358,7 +364,7 @@ def reset():#temp
     global name,hide,autostun,shotCount,bulletType,barrier,exposed,sp,sdp,body,btm,damageTaken,stun,uncon,dead,wildcard
     exposed=set()
     bulletType="Norm"
-    autostun=False
+    autostun=True
     shotCount=0
     barrier=0
     sp=[0]*7
@@ -482,6 +488,10 @@ def main():#### MAIN ####
 
     while(True):### MAIN LOOP ###
         clr()
+
+        if(damageTaken>=50):
+            dead=True
+
         if(wildcard or autostun or hide):
             #if(wildcard):
             #    print("*WILDCARD*  ",end="")
