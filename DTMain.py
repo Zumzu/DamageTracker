@@ -38,7 +38,7 @@ def dealDamage(damage,index,silent=False):
         targetBar=0
 
     damage-=targetBar
-    if(damage+targetBar>=barrier/2 and barrier>0):
+    if(damage+targetBar>=barrier/2 and targetBar>0):
         barrier-=1
 
     #SP
