@@ -14,11 +14,9 @@ def dealDamage(damage,index,silent=False):
         targetSP=0
 
     elif(bulletType=="pref" or bulletType=="p" or bulletType=="t" or bulletType=="hm"):
-        targetBar*=0.5
         targetSP*=0.5
 
     elif(bulletType=="quarter" or bulletType=="qu" or bulletType=="sm"):
-        targetBar*=0.25
         targetSP*=0.25
         
     elif(bulletType=="ap" or bulletType=="b"):
@@ -28,13 +26,19 @@ def dealDamage(damage,index,silent=False):
     elif(bulletType=="holo" or bulletType=="hp" or bulletType=="h"):
         targetBar*=1.5
         targetSP*=1.5
+
+    elif(bulletType=="cyber" or bulletType=="cc"):
+        if(not sdp[index]==-1):
+            damage*=2
     
+    elif(bulletType=="fmj"):
+        targetBar=max(targetBar-15,0)
 
     targetBar=floor(targetBar)
     targetSP=floor(targetSP)
 
     ##Exposed
-    if(index in exposed):
+    if(index in exposed or targetBar<0):
         targetBar=0
 
     damage-=targetBar
@@ -87,7 +91,13 @@ def dealDamage(damage,index,silent=False):
         if(autostun):
             rollStun()
     else:
-        sdp[index]-=damage
+        if(bulletType=="cyber" or bulletType=="cc"):
+            sdp[index]-=damage*2
+            if(autostun):
+                rollStun()
+        else:
+            sdp[index]-=damage
+
         if(sdp[index]<=0):
             sdp[index]=0
             if(not silent):
@@ -95,7 +105,7 @@ def dealDamage(damage,index,silent=False):
                     print(f"### ROBOT DEAD ###")  
                     dead=True
                 else:
-                    print(f"# CYBERLIMB BROKEN #")  
+                    print(f"# CYBERLIMB BROKEN #")
 
     if(bulletType=="i" or bulletType=="incin"):
         incinDamage=randint(1,6)
@@ -200,10 +210,12 @@ def askBulletType():
 (HOLO) - SP treated as 1.5x, 1.5x damage through
 (INCIN)- Additional 1D6 damage if damage does through
 (EXPLO)- Additional 1D3 sp damage
+(CYBER)- On SDP: 2x damage and force a stun check
+(FMJ)  - Pierces the first 15 SP of barriers
 
 (FULL) - SP ignored (still degraded), full damage through
 
-Ammo Type: """).split(":")[0].lower())
+Ammo Type: """).lower())
 
 def initBody():
     global body,btm
