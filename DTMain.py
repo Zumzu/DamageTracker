@@ -701,22 +701,22 @@ def main():#### MAIN ####
             continue
 
         if(temp=="head"):
-            sp[0] = input("Set head SP: ")
+            sp[0] = int(input("Set head SP: "))
             continue
         if(temp=="torso"):
-            sp[1] = input("Set torso SP: ")
+            sp[1] = int(input("Set torso SP: "))
             continue
         if(temp=="larm"):
-            sp[2] = input("Set left arm SP: ")
+            sp[2] = int(input("Set left arm SP: "))
             continue
         if(temp=="rarm"):
-            sp[3] = input("Set right arm SP: ")
+            sp[3] = int(input("Set right arm SP: "))
             continue
         if(temp=="lleg"):
-            sp[4] = input("Set left leg SP: ")
+            sp[4] = int(input("Set left leg SP: "))
             continue
         if(temp=="rleg"):
-            sp[5] = input("Set right leg SP: ")
+            sp[5] = int(input("Set right leg SP: "))
             continue
 
         if(temp=="c" or temp=="call"):
