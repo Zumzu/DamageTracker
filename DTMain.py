@@ -2,7 +2,7 @@ from math import ceil,floor
 from random import choice,randint
 import os
 from platform import system
-
+ 
 def dealDamage(damage,index,silent=False):
     global shotCount,barrier,sp,damageTaken,stun,uncon,dead,bulletType,exposed,autostun
 
